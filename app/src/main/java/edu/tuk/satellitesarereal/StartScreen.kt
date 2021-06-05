@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun StartScreen() {
-    Column() {
+    Column {
         Text("Some Text here.")
     }
 }

@@ -51,7 +51,8 @@ class RetrofitTleFilesService @Inject constructor(@ApplicationContext val contex
             .baseUrl(fileUrl.substring(0..fileUrl.lastIndexOf("/")))
             .build()
             .create(TleFilesDownloader::class.java)
-            .downloadFile(fileUrl).body()
+            .downloadFile(fileUrl)
+            .body()
 
         saveFile(
             fileName = fileName + "_" + timeStamp,
@@ -60,7 +61,7 @@ class RetrofitTleFilesService @Inject constructor(@ApplicationContext val contex
 
     }
 
-    private suspend fun saveFile(fileName: String, responseBody: ResponseBody?) {
+    private fun saveFile(fileName: String, responseBody: ResponseBody?) {
         responseBody?.let {
             val input = responseBody.byteStream()
             context.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->

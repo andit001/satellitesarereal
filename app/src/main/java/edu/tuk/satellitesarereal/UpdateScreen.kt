@@ -1,12 +1,7 @@
 package edu.tuk.satellitesarereal
 
-import android.content.Context
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -14,23 +9,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -69,7 +54,7 @@ class SomeViewModel @Inject constructor(
 
     fun onAddTleUrl(url: String) {
         viewModelScope.launch {
-            var newUrls = _urls.value
+            val newUrls = _urls.value
                 ?.toMutableList()
                 ?.apply { add(url) }
                 ?.distinct()
@@ -138,7 +123,7 @@ fun UpdateScreen(someViewModel: SomeViewModel) {
                 border = BorderStroke(1.dp, Color.Gray),
                 elevation = 5.dp
             ) {
-                Column() {
+                Column {
                     Text(
                         text = it,
                         modifier = Modifier
