@@ -34,12 +34,9 @@ class DataStoreAppSettingsService @Inject constructor(@ApplicationContext val co
             }
     }
 
-    private val _saveLock = Mutex()
     override suspend fun saveTLEUrls(urls: List<String>) {
         context.dataStore.edit { settings ->
-            _saveLock.withLock {
-                settings[TLE_URLS_KEY] = urls.joinToString(";")
-            }
+            settings[TLE_URLS_KEY] = urls.joinToString(";")
         }
     }
 
