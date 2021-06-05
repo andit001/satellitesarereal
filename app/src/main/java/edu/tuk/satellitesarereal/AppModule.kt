@@ -7,7 +7,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
+import edu.tuk.satellitesarereal.repositories.TleFilesRepository
 import edu.tuk.satellitesarereal.services.DataStoreAppSettingsService
+import edu.tuk.satellitesarereal.services.RetrofitTleFilesService
 import javax.inject.Singleton
 
 @Module
@@ -23,5 +25,11 @@ object AppModule {
     @Singleton
     fun provideAppSettingsRepository(@ApplicationContext context: Context): AppSettingsRepository {
         return DataStoreAppSettingsService(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTleFilesRepository(@ApplicationContext context: Context): TleFilesRepository {
+        return RetrofitTleFilesService(context)
     }
 }
