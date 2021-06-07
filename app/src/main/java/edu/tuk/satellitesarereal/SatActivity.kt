@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
+import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
 
 @AndroidEntryPoint
 class SatActivity : ComponentActivity() {
@@ -91,8 +92,8 @@ fun SatArApp() {
                 FilterScreen()
             }
             composable(route = "UpdateScreen") {
-                val someViewModel: SomeViewModel = hiltViewModel()
-                UpdateScreen(someViewModel)
+                val updateScreenViewModel: UpdateScreenViewModel = hiltViewModel()
+                UpdateScreen(updateScreenViewModel)
             }
         }
     }

@@ -37,5 +37,4 @@ class DataStoreAppSettingsService @Inject constructor(@ApplicationContext val co
             settings[TLE_URLS_KEY] = urls.joinToString(";")
         }
     }
-
 }
