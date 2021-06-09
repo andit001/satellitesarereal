@@ -40,7 +40,7 @@ fun UpdateScreen(viewModel: UpdateScreenViewModel) {
             modifier = Modifier.fillMaxWidth(),
             onClick = { urls?.let { viewModel.onDownloadFiles(it) } }
         ) {
-            Text(text = "DOWNLOAD FILES")
+            Text(text = stringResource(R.string.download_files_button))
         }
 
         Spacer(Modifier.height(5.dp))
@@ -51,7 +51,7 @@ fun UpdateScreen(viewModel: UpdateScreenViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { viewModel.onLoadDefaultUrls() }
                 ) {
-                    Text("LOAD DEFAULT SOURCES")
+                    Text(stringResource(R.string.load_default_sources_button))
                 }
             }
         }
@@ -64,7 +64,7 @@ fun UpdateScreen(viewModel: UpdateScreenViewModel) {
             modifier = Modifier.fillMaxWidth(),
             onClick = { fileList?.forEach { viewModel.onDeleteFile(it) } }
         ) {
-            Text(text = "DELETE FILES")
+            Text(text = stringResource(R.string.delete_files_button))
         }
 
         fileList?.forEach { Text(it) }
@@ -120,7 +120,7 @@ private fun UrlInput(
         OutlinedTextField(
             value = inputText,
             onValueChange = { onInputTextUpdate(it) },
-            label = { Text("URL") }
+            label = { Text(stringResource(R.string.url_textfield)) }
         )
         Button(
             modifier = Modifier
@@ -140,7 +140,7 @@ private fun UrlInput(
                 onInputTextUpdate("")
             }
         ) {
-            Text(text = "Add url")
+            Text(text = stringResource(R.string.add_url_button))
         }
     }
 }

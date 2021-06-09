@@ -2,4 +2,9 @@
     <string name="app_name">Satellites Are Real</string>
     <string name="remove_item_link">remove</string>
     <string name="invalid_url_input">Invalid URL given.</string>
+    <string name="add_url_button">Add url</string>
+    <string name="url_textfield">URL</string>
+    <string name="delete_files_button">DELETE FILES</string>
+    <string name="load_default_sources_button">LOAD DEFAULT SOURCES</string>
+    <string name="download_files_button">DOWNLOAD FILES</string>
 </resources>
