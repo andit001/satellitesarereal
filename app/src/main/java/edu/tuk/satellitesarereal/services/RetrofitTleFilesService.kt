@@ -4,8 +4,6 @@ import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -14,7 +12,6 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.GET
-import retrofit2.http.Streaming
 import retrofit2.http.Url
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,14 +22,19 @@ import javax.inject.Singleton
 const val TAG = "SatAr:RetrofitTleFilesService"
 
 interface TleFilesDownloader {
-    @Streaming
     @GET
     suspend fun downloadFile(@Url fileUrl: String): Response<ResponseBody>
 }
 
 @Singleton
-class RetrofitTleFilesService @Inject constructor(@ApplicationContext val context: Context)
-    : TleFilesRepository {
+class RetrofitTleFilesService @Inject constructor(@ApplicationContext val context: Context) :
+    TleFilesRepository {
+
+    private val service: TleFilesDownloader = Retrofit.Builder()
+        .baseUrl("https://google.com/")
+        .build()
+        .create(TleFilesDownloader::class.java)
+
     override fun listFiles(): List<String> {
         return context.fileList().toList().drop(1)
     }
@@ -49,33 +51,37 @@ class RetrofitTleFilesService @Inject constructor(@ApplicationContext val contex
             .toJavaLocalDateTime()
             .toString()
 
+        Log.d(TAG, "fileUrl: $fileUrl")
+
         val fileName = fileUrl
             .substring(fileUrl.lastIndexOf("/") + 1)
 
-        val responseBody = Retrofit.Builder()
-            .baseUrl(fileUrl.substring(0..fileUrl.lastIndexOf("/")))
-            .build()
-            .create(TleFilesDownloader::class.java)
-            .downloadFile(fileUrl)
-            .body()
+        val response = service.downloadFile(fileUrl)
 
-        saveFile(
-            fileName = "$timeStamp $fileName",
-            responseBody = responseBody
-        )
+        val responseBody = if (response != null && response.isSuccessful) {
+            response.body()
+        } else {
+            Log.d(TAG, "Could not fetch file: $fileUrl")
+            return
+        }
+
+        responseBody?.let {
+            saveFile(
+                fileName = "$timeStamp $fileName",
+                responseBody = responseBody
+            )
+        }
 
     }
 
-    private suspend fun saveFile(fileName: String, responseBody: ResponseBody?) {
+    private fun saveFile(fileName: String, responseBody: ResponseBody?) {
         responseBody?.let {
             responseBody.byteStream().use { input ->
                 context.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
-                    withContext(Dispatchers.IO) {
-                        val buffer = ByteArray(4 * 1024)
-                        var read: Int
-                        while (input.read(buffer).also { read = it } != -1) {
-                            output.write(buffer, 0, read)
-                        }
+                    val buffer = ByteArray(4 * 1024)
+                    var read: Int
+                    while (input.read(buffer).also { read = it } != -1) {
+                        output.write(buffer, 0, read)
                     }
                 }
             }

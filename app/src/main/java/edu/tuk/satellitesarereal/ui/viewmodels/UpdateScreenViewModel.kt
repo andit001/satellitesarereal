@@ -9,6 +9,7 @@ import edu.tuk.satellitesarereal.repositories.TleFilesRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -101,8 +102,16 @@ class UpdateScreenViewModel @Inject constructor(
 
     private fun downloadFile(file: String) {
         viewModelScope.launch {
-            tleFilesRepository.downloadTleFile(file)
-            getFileList()
+            try {
+                tleFilesRepository.downloadTleFile(file)
+            } catch (e: UnknownHostException) {
+                Log.d(TAG, "downloadFile(): UnknownHostException message: ${e.message}")
+            } catch (e: Exception) {
+                Log.d(TAG, "Could not download file: $file")
+                e.printStackTrace()
+            } finally {
+                getFileList()
+            }
         }
     }
 
