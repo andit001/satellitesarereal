@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Satellites Are Real</string>
     <string name="remove_item_link">remove</string>
+    <string name="invalid_url_input">Invalid URL given.</string>
 </resources>
