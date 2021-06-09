@@ -8,8 +8,12 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +29,13 @@ class DataStoreAppSettingsService @Inject constructor(@ApplicationContext val co
 
     override suspend fun tleUrls(): Flow<List<String>> {
         return context.dataStore.data
+            .catch {
+                if (it is IOException) {
+                    it.printStackTrace()
+                } else {
+                    throw it
+                }
+            }
             .map {
                 (it[TLE_URLS_KEY] ?: "")
                     .split(";")
