@@ -1,8 +1,11 @@
 package edu.tuk.satellitesarereal.services
 
 import android.content.Context
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -19,6 +22,8 @@ import javax.inject.Singleton
 // https://stackoverflow.com/a/61093017
 // https://developer.android.com/training/data-storage/app-specific.
 
+const val TAG = "SatAr:RetrofitTleFilesService"
+
 interface TleFilesDownloader {
     @Streaming
     @GET
@@ -28,11 +33,11 @@ interface TleFilesDownloader {
 @Singleton
 class RetrofitTleFilesService @Inject constructor(@ApplicationContext val context: Context)
     : TleFilesRepository {
-    override suspend fun listFiles(): List<String> {
-        return context.fileList().toList()
+    override fun listFiles(): List<String> {
+        return context.fileList().toList().drop(1)
     }
 
-    override suspend fun deleteFile(fileName: String) {
+    override fun deleteFile(fileName: String) {
         context.deleteFile(fileName)
     }
 
@@ -55,21 +60,23 @@ class RetrofitTleFilesService @Inject constructor(@ApplicationContext val contex
             .body()
 
         saveFile(
-            fileName = fileName + "_" + timeStamp,
+            fileName = "$timeStamp $fileName",
             responseBody = responseBody
         )
 
     }
 
-    private fun saveFile(fileName: String, responseBody: ResponseBody?) {
+    private suspend fun saveFile(fileName: String, responseBody: ResponseBody?) {
         responseBody?.let {
-            val input = responseBody.byteStream()
-            context.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
-                val buffer = ByteArray(4 * 1024)
-                var read: Int
-
-                while (input.read(buffer).also { read = it } != -1) {
-                    output.write(buffer, 0, read)
+            responseBody.byteStream().use { input ->
+                context.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
+                    withContext(Dispatchers.IO) {
+                        val buffer = ByteArray(4 * 1024)
+                        var read: Int
+                        while (input.read(buffer).also { read = it } != -1) {
+                            output.write(buffer, 0, read)
+                        }
+                    }
                 }
             }
         }
