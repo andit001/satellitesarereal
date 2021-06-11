@@ -42,8 +42,8 @@ class SatActivity : ComponentActivity() {
 @Composable
 fun SatArApp() {
     var selectedItem by rememberSaveable { mutableStateOf(0) }
-
     val navController = rememberNavController()
+
     Scaffold(
         bottomBar = {
             BottomNavigation {

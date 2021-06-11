@@ -20,6 +20,7 @@ import javax.inject.Singleton
 // https://developer.android.com/training/data-storage/app-specific.
 
 const val TAG = "SatAr:RetrofitTleFilesService"
+const val BUFFER_SIZE = 4 * 1024
 
 interface TleFilesDownloader {
     @GET
@@ -65,20 +66,18 @@ class RetrofitTleFilesService @Inject constructor(@ApplicationContext val contex
             return
         }
 
-        responseBody?.let {
-            saveFile(
-                fileName = "$timeStamp $fileName",
-                responseBody = responseBody
-            )
-        }
+        saveFile(
+            fileName = "$timeStamp $fileName",
+            responseBody = responseBody
+        )
 
     }
 
     private fun saveFile(fileName: String, responseBody: ResponseBody?) {
         responseBody?.let {
-            responseBody.byteStream().use { input ->
+            it.byteStream().use { input ->
                 context.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
-                    val buffer = ByteArray(4 * 1024)
+                    val buffer = ByteArray(BUFFER_SIZE)
                     var read: Int
                     while (input.read(buffer).also { read = it } != -1) {
                         output.write(buffer, 0, read)

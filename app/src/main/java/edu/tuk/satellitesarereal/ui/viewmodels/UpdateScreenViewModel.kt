@@ -12,15 +12,13 @@ import kotlinx.coroutines.runBlocking
 import java.net.UnknownHostException
 import javax.inject.Inject
 
+const val TAG = "SatAr:SomeViewModel"
+
 @HiltViewModel
 class UpdateScreenViewModel @Inject constructor(
     val appSettingsRepository: AppSettingsRepository,
     val tleFilesRepository: TleFilesRepository,
 ) : ViewModel() {
-
-    companion object {
-        private const val TAG = "SatAr:SomeViewModel"
-    }
 
     class MalformedUrlException(message: String) : Exception(message)
 

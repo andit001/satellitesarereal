@@ -22,7 +22,7 @@ fun FilterScreen() {
         Text("Filter Screen")
 
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items (satellites) { satellite ->
+            items(satellites) { satellite ->
                 Text(
                     text = satellite,
                     modifier = Modifier.padding(24.dp),
