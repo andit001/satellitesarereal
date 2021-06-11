@@ -8,7 +8,6 @@ import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.net.UnknownHostException
 import javax.inject.Inject
 
@@ -29,21 +28,23 @@ class UpdateScreenViewModel @Inject constructor(
     val fileList: LiveData<List<String>> get() = _fileList
 
     init {
-        viewModelScope.launch {
-            readUrls()
-        }
+        readUrls()
         getFileList()
     }
 
 
-    private suspend fun readUrls() {
-        appSettingsRepository.tleUrls().collect { value ->
-            _urls.postValue(value)
+    private fun readUrls() {
+        viewModelScope.launch {
+            appSettingsRepository.tleUrls().collect { value ->
+                _urls.postValue(value)
+            }
         }
     }
 
     private fun getFileList() {
-        _fileList.postValue(tleFilesRepository.listFiles())
+        viewModelScope.launch {
+            _fileList.postValue(tleFilesRepository.listFiles())
+        }
     }
 
     fun onLoadDefaultUrls() {
@@ -74,11 +75,9 @@ class UpdateScreenViewModel @Inject constructor(
             ?.distinct()
 
         Log.d(TAG, "onAddTleUrl(): newUrls: $newUrls")
-        runBlocking {
-            viewModelScope.launch {
-                newUrls?.let {
-                    appSettingsRepository.saveTLEUrls(newUrls)
-                }
+        viewModelScope.launch {
+            newUrls?.let {
+                appSettingsRepository.saveTLEUrls(newUrls)
             }
         }
     }
