@@ -59,7 +59,7 @@ class RetrofitTleFilesService @Inject constructor(@ApplicationContext val contex
 
         val response = service.downloadFile(fileUrl)
 
-        val responseBody = if (response != null && response.isSuccessful) {
+        val responseBody = if (response.isSuccessful) {
             response.body()
         } else {
             Log.d(TAG, "Could not fetch file: $fileUrl")
