@@ -22,9 +22,7 @@ import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
 fun UpdateScreen(viewModel: UpdateScreenViewModel) {
     val urls by viewModel.urls.observeAsState()
     val fileList by viewModel.fileList.observeAsState()
-
     var inputText by remember { mutableStateOf("") }
-
     val scrollState = ScrollState(0)
 
     Column(
