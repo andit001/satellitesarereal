@@ -13,6 +13,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Url
+import java.io.InputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,6 +43,10 @@ class RetrofitTleFilesService @Inject constructor(@ApplicationContext val contex
 
     override fun deleteFile(fileName: String) {
         context.deleteFile(fileName)
+    }
+
+    override fun openFile(fileName: String): InputStream {
+        return context.openFileInput(fileName)
     }
 
     override suspend fun downloadTleFile(fileUrl: String) {

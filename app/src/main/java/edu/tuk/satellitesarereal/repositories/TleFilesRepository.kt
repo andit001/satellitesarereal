@@ -1,5 +1,7 @@
 package edu.tuk.satellitesarereal.repositories
 
+import java.io.InputStream
+
 interface TleFilesRepository {
 
     fun listFiles(): List<String>
@@ -8,4 +10,5 @@ interface TleFilesRepository {
 
     suspend fun downloadTleFile(fileUrl: String)
 
+    fun openFile(fileName: String): InputStream
 }
