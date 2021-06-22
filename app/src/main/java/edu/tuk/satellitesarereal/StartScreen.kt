@@ -67,6 +67,32 @@ class SomeViewModel @Inject constructor(
         getFilteredEntries(subString)
     }
 
+    fun onSelectAll() {
+        viewModelScope.launch {
+            tleEntries.value
+                ?.map {
+                    TleEntry
+                        .deepCopy(it)
+                        .apply { isSelected = true }
+                }
+                ?.toTypedArray()
+                ?.also { satelliteDatabase.tleEntryDao().updateTles(*it) }
+        }
+    }
+
+    fun onDeselectAll() {
+        viewModelScope.launch {
+            tleEntries.value
+                ?.map {
+                    TleEntry
+                        .deepCopy(it)
+                        .apply { isSelected = false }
+                }
+                ?.toTypedArray()
+                ?.also { satelliteDatabase.tleEntryDao().updateTles(*it) }
+        }
+    }
+
     fun onToggleSelectSatellite(name: String) {
         viewModelScope.launch {
             // INFO: A deep copy of the element is created, such that when it is updated, it is
@@ -150,6 +176,19 @@ fun StartScreen(viewModel: SomeViewModel) {
                 viewModel.onFilterEntries(it)
             }
         )
+
+        Row {
+            Button(onClick = {
+                viewModel.onSelectAll()
+            }) {
+                Text("SELECT ALL")
+            }
+            Button(onClick = {
+                viewModel.onDeselectAll()
+            }) {
+                Text("DESELECT ALL")
+            }
+        }
 
         Spacer(Modifier.height(16.dp))
 
