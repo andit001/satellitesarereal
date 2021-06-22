@@ -53,7 +53,6 @@ fun SatArApp() {
                     },
                     selected = selectedItem == 0,
                     onClick = {
-                        selectedItem = 0
                         navController.navigate("StartScreen")
                     },
                 )
@@ -63,7 +62,6 @@ fun SatArApp() {
                     },
                     selected = selectedItem == 1,
                     onClick = {
-                        selectedItem = 1
                         navController.navigate("FilterScreen")
                     },
                 )
@@ -73,7 +71,6 @@ fun SatArApp() {
                     },
                     selected = selectedItem == 2,
                     onClick = {
-                        selectedItem = 2
                         navController.navigate("UpdateScreen")
                     },
                 )
@@ -86,14 +83,18 @@ fun SatArApp() {
             Modifier.padding(it)
         ) {
             composable(route = "StartScreen") {
-                StartScreen()
+                selectedItem = 0
+                val viewModel: SomeViewModel = hiltViewModel()
+                StartScreen(viewModel)
             }
             composable(route = "FilterScreen") {
+                selectedItem = 1
                 FilterScreen()
             }
             composable(route = "UpdateScreen") {
-                val updateScreenViewModel: UpdateScreenViewModel = hiltViewModel()
-                UpdateScreen(updateScreenViewModel)
+                selectedItem = 2
+                val viewModel: UpdateScreenViewModel = hiltViewModel()
+                UpdateScreen(viewModel)
             }
         }
     }
