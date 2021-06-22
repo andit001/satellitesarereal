@@ -1,11 +1,13 @@
 package edu.tuk.satellitesarereal
 
 import android.content.Context
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import edu.tuk.satellitesarereal.model.SatelliteDatabase
 import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
 import edu.tuk.satellitesarereal.services.DataStoreAppSettingsService
@@ -31,5 +33,11 @@ object AppModule {
     @Singleton
     fun provideTleFilesRepository(@ApplicationContext context: Context): TleFilesRepository {
         return RetrofitTleFilesService(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSatellitesDatabase(@ApplicationContext context: Context) : SatelliteDatabase {
+        return SatelliteDatabase.create(context)
     }
 }
