@@ -68,30 +68,26 @@ class SomeViewModel @Inject constructor(
     }
 
     fun onSelectAll() {
+        setSelectionOfFilteredEntries(true)
+    }
+
+    fun onDeselectAll() {
+        setSelectionOfFilteredEntries(false)
+    }
+
+    private fun setSelectionOfFilteredEntries(selected: Boolean) {
         viewModelScope.launch {
             tleEntries.value
                 ?.map {
                     TleEntry
                         .deepCopy(it)
-                        .apply { isSelected = true }
+                        .apply { isSelected = selected }
                 }
                 ?.toTypedArray()
                 ?.also { satelliteDatabase.tleEntryDao().updateTles(*it) }
         }
     }
 
-    fun onDeselectAll() {
-        viewModelScope.launch {
-            tleEntries.value
-                ?.map {
-                    TleEntry
-                        .deepCopy(it)
-                        .apply { isSelected = false }
-                }
-                ?.toTypedArray()
-                ?.also { satelliteDatabase.tleEntryDao().updateTles(*it) }
-        }
-    }
 
     fun onToggleSelectSatellite(name: String) {
         viewModelScope.launch {
