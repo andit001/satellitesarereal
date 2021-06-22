@@ -13,6 +13,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Url
+import java.io.File
 import java.io.InputStream
 import javax.inject.Inject
 import javax.inject.Singleton
