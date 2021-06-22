@@ -1,5 +1,6 @@
 package edu.tuk.satellitesarereal.repositories
 
+import java.io.File
 import java.io.InputStream
 
 interface TleFilesRepository {
