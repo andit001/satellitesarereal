@@ -75,7 +75,8 @@ interface TleEntryDao {
     @Query("SELECT * FROM tle_entries ORDER BY name")
     fun getAll(): Flow<List<TleEntry>>
 
-    // TODO: add a query to filter satellites by their name.
+    @Query("SELECT * FROM tle_entries WHERE name LIKE :subString")
+    fun getFilteredEntries(subString: String): Flow<List<TleEntry>>
 
     @Update
     suspend fun updateTles(vararg tles: TleEntry)

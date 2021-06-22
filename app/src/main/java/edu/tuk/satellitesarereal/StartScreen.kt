@@ -3,17 +3,16 @@ package edu.tuk.satellitesarereal
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.Checkbox
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.rtbishop.look4sat.domain.predict4kotlin.DeepSpaceSat
 import com.rtbishop.look4sat.domain.predict4kotlin.NearEarthSat
 import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
@@ -23,6 +22,7 @@ import edu.tuk.satellitesarereal.model.SatelliteDatabase
 import edu.tuk.satellitesarereal.model.TleEntry
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.zip.ZipInputStream
@@ -37,7 +37,35 @@ class SomeViewModel @Inject constructor(
 
     // Test-Code TODO
 
-    val tleEntries: LiveData<List<TleEntry>> = satelliteDatabase.tleEntryDao().getAll().asLiveData()
+    private var filterJob: Job = Job()
+
+    private val _tleEntries: MutableLiveData<List<TleEntry>> = MutableLiveData()
+    val tleEntries: LiveData<List<TleEntry>> = _tleEntries
+
+    init {
+        getFilteredEntries("")
+    }
+
+    private fun getFilteredEntries(subString: String) {
+        // Make sure the flow gets cancelled.
+        filterJob.cancel()
+
+        // Start a new flow with the new filter properties.
+        filterJob = viewModelScope.launch {
+            if (subString.isNotEmpty()) {
+                satelliteDatabase.tleEntryDao().getFilteredEntries("%$subString%")
+            } else {
+                satelliteDatabase.tleEntryDao().getAll()
+            }
+                .collect {
+                    _tleEntries.postValue(it)
+                }
+        }
+    }
+
+    fun onFilterEntries(subString: String) {
+        getFilteredEntries(subString)
+    }
 
     fun onToggleSelectSatellite(name: String) {
         viewModelScope.launch {
@@ -45,7 +73,8 @@ class SomeViewModel @Inject constructor(
             //       considered a new entry in the list. Using the original element to call
             //       updateTles() seems not to recognize it as a change as the reference is the
             //       same. TODO: Further explore this and confirm/drop this idea.
-            tleEntries.value?.find { it.name == name }
+            tleEntries.value
+                ?.find { it.name == name }
                 ?.let {
                     val newEntry = TleEntry.deepCopy(it)
                     newEntry.isSelected = !it.isSelected
@@ -87,22 +116,21 @@ class SomeViewModel @Inject constructor(
     private fun fileToTleList(fileName: String): List<TLE> {
         // TODO handle exceptions smarter (i.e. keep them away from the view)
         filesRepository.openFile(fileName).use { file ->
-            val inputStream =
+            return Satellite.importElements(
                 if (fileName.endsWith(".zip", true)) {
                     ZipInputStream(file).apply { nextEntry }
                 } else {
                     file
                 }
-
-            return Satellite.importElements(inputStream)
+            )
         }
-
     }
 }
 
 @Composable
 fun StartScreen(viewModel: SomeViewModel) {
     val tleEntries by viewModel.tleEntries.observeAsState()
+    var inputText by remember { mutableStateOf("") }
 
     Column {
         Text("Room db experiments.")
@@ -114,6 +142,14 @@ fun StartScreen(viewModel: SomeViewModel) {
         }) {
             Text("LOAD TLE DATA")
         }
+
+        OutlinedTextField(
+            value = inputText,
+            onValueChange = {
+                inputText = it
+                viewModel.onFilterEntries(it)
+            }
+        )
 
         Spacer(Modifier.height(16.dp))
 
