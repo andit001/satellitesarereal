@@ -38,7 +38,7 @@ fun UpdateScreen(viewModel: UpdateScreenViewModel) {
             modifier = Modifier.fillMaxWidth(),
             onClick = { urls?.let { viewModel.onDownloadFiles(it) } }
         ) {
-            Text(text = stringResource(R.string.download_files_button))
+            Text(stringResource(R.string.download_files_button))
         }
 
         Spacer(Modifier.height(5.dp))
@@ -62,7 +62,7 @@ fun UpdateScreen(viewModel: UpdateScreenViewModel) {
             modifier = Modifier.fillMaxWidth(),
             onClick = { fileList?.forEach { viewModel.onDeleteFile(it) } }
         ) {
-            Text(text = stringResource(R.string.delete_files_button))
+            Text(stringResource(R.string.delete_files_button))
         }
 
         fileList?.forEach { Text(it) }
