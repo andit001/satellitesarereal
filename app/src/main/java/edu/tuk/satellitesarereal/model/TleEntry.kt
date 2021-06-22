@@ -49,6 +49,24 @@ data class TleEntry (
                isSelected,
             )
         }
+
+        // Convenience method to make the VM easier. Probably, it will be removed as it is used
+        // to circumvent some strange behaviour.
+        fun deepCopy(other: TleEntry): TleEntry {
+            return TleEntry(
+                other.name,
+                other.epoch,
+                other.meanmo,
+                other.eccn,
+                other.incl,
+                other.raan,
+                other.argper,
+                other.meanan,
+                other.catnum,
+                other.bstar,
+                other.isSelected,
+            )
+        }
     }
 }
 
@@ -60,8 +78,8 @@ interface TleEntryDao {
     // TODO: add a query to filter satellites by their name.
 
     @Update
-    fun updateTles(vararg tles: TleEntry)
+    suspend fun updateTles(vararg tles: TleEntry)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTles(vararg tles: TleEntry)
+    suspend fun insertTles(vararg tles: TleEntry)
 }

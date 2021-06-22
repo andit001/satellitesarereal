@@ -8,14 +8,12 @@ import androidx.compose.material.Checkbox
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.rtbishop.look4sat.domain.predict4kotlin.DeepSpaceSat
 import com.rtbishop.look4sat.domain.predict4kotlin.NearEarthSat
 import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
@@ -25,8 +23,6 @@ import edu.tuk.satellitesarereal.model.SatelliteDatabase
 import edu.tuk.satellitesarereal.model.TleEntry
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.zip.ZipInputStream
@@ -41,31 +37,20 @@ class SomeViewModel @Inject constructor(
 
     // Test-Code TODO
 
-    private val _tleEntries: MutableStateFlow<List<TleEntry>> = MutableStateFlow(listOf())
-    val tleEntries: StateFlow<List<TleEntry>> = _tleEntries
-
-
-    init {
-        getAllTleEntries()
-    }
-
-    private fun getAllTleEntries() {
-        viewModelScope.launch {
-            val dao = satelliteDatabase.tleEntryDao()
-
-            dao.getAll().collect {
-                _tleEntries.value = it
-            }
-        }
-    }
+    val tleEntries: LiveData<List<TleEntry>> = satelliteDatabase.tleEntryDao().getAll().asLiveData()
 
     fun onToggleSelectSatellite(name: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val entry = _tleEntries.value.find { it.name == name }
-            entry?.let {
-                it.isSelected = !it.isSelected
-                satelliteDatabase.tleEntryDao().updateTles(it)
-            }
+        viewModelScope.launch {
+            // INFO: A deep copy of the element is created, such that when it is updated, it is
+            //       considered a new entry in the list. Using the original element to call
+            //       updateTles() seems not to recognize it as a change as the reference is the
+            //       same. TODO: Further explore this and confirm/drop this idea.
+            tleEntries.value?.find { it.name == name }
+                ?.let {
+                    val newEntry = TleEntry.deepCopy(it)
+                    newEntry.isSelected = !it.isSelected
+                    satelliteDatabase.tleEntryDao().updateTles(newEntry)
+                }
         }
     }
 
@@ -117,7 +102,7 @@ class SomeViewModel @Inject constructor(
 
 @Composable
 fun StartScreen(viewModel: SomeViewModel) {
-    val tleEntries by viewModel.tleEntries.collectAsState()
+    val tleEntries by viewModel.tleEntries.observeAsState()
 
     Column {
         Text("Room db experiments.")
@@ -133,20 +118,22 @@ fun StartScreen(viewModel: SomeViewModel) {
         Spacer(Modifier.height(16.dp))
 
         LazyColumn {
-            items(tleEntries) { tle ->
-                Row {
-                    Checkbox(
-                        checked = tle.isSelected,
-                        onCheckedChange = {
-                            viewModel.onToggleSelectSatellite(tle.name)
-                        },
-                    )
-                    Text(
-                        text = tle.name,
-                        modifier = Modifier.padding(24.dp),
-                    )
+            tleEntries?.let {
+                items(it) { tle ->
+                    Row {
+                        Checkbox(
+                            checked = tle.isSelected,
+                            onCheckedChange = {
+                                viewModel.onToggleSelectSatellite(tle.name)
+                            },
+                        )
+                        Text(
+                            text = tle.name,
+                            modifier = Modifier.padding(24.dp),
+                        )
+                    }
+                    Divider(color = Color.Black)
                 }
-                Divider(color = Color.Black)
             }
         }
     }
