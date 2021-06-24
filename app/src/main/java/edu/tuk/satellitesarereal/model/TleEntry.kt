@@ -78,6 +78,9 @@ interface TleEntryDao {
     @Query("SELECT * FROM tle_entries WHERE name LIKE :subString")
     fun getFilteredEntries(subString: String): Flow<List<TleEntry>>
 
+    @Query("SELECT * FROM tle_entries WHERE isSelected = 1")
+    fun getSelectedEntries(): Flow<List<TleEntry>>
+
     @Update
     suspend fun updateTles(vararg tles: TleEntry)
 
