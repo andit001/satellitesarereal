@@ -9,8 +9,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import edu.tuk.satellitesarereal.model.SatelliteDatabase
 import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
+import edu.tuk.satellitesarereal.repositories.LocationRepository
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
 import edu.tuk.satellitesarereal.services.DataStoreAppSettingsService
+import edu.tuk.satellitesarereal.services.LocationService
 import edu.tuk.satellitesarereal.services.RetrofitTleFilesService
 import javax.inject.Singleton
 
@@ -33,6 +35,12 @@ object AppModule {
     @Singleton
     fun provideTleFilesRepository(@ApplicationContext context: Context): TleFilesRepository {
         return RetrofitTleFilesService(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationRepository(@ApplicationContext context: Context): LocationRepository {
+        return LocationService(context)
     }
 
     @Provides

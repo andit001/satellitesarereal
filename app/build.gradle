@@ -50,6 +50,9 @@ android {
 dependencies {
     implementation project(':core')
 
+    // Location services.
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+
     // Hilt, https://developer.android.com/training/dependency-injection/hilt-android
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"

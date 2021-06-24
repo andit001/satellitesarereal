@@ -3,6 +3,7 @@
     package="edu.tuk.satellitesarereal">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -13,6 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SatellitesAreReal">
+        <service
+            android:name="SatApplication"
+            android:foregroundServiceType="location">
+        </service>
         <activity
             android:name=".SatActivity"
             android:exported="true"
