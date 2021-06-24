@@ -68,6 +68,7 @@ class FilterScreenViewModel @Inject constructor(
     private fun setSelectionOfFilteredEntries(selected: Boolean) {
         viewModelScope.launch {
             tleEntries.value
+                ?.filter { it.isSelected != selected }
                 ?.map {
                     TleEntry
                         .deepCopy(it)
@@ -77,7 +78,6 @@ class FilterScreenViewModel @Inject constructor(
                 ?.also { satelliteDatabase.tleEntryDao().updateTles(*it) }
         }
     }
-
 
     fun onToggleSelectSatellite(name: String) {
         viewModelScope.launch {
@@ -100,18 +100,6 @@ class FilterScreenViewModel @Inject constructor(
             val tleList: MutableList<TLE> = mutableListOf()
             filesRepository.listFiles().forEach {
                 tleList.addAll(fileToTleList(it))
-            }
-
-            val satList: MutableList<Satellite> = mutableListOf()
-
-            tleList.forEach {
-                satList.add(
-                    if (it.isDeepspace) {
-                        DeepSpaceSat(it)
-                    } else {
-                        NearEarthSat(it)
-                    }
-                )
             }
 
             // Safe data to room db.
