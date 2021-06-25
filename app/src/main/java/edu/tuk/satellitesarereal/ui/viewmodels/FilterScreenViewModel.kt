@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rtbishop.look4sat.domain.predict4kotlin.DeepSpaceSat
-import com.rtbishop.look4sat.domain.predict4kotlin.NearEarthSat
 import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
 import com.rtbishop.look4sat.domain.predict4kotlin.TLE
 import dagger.hilt.android.lifecycle.HiltViewModel
