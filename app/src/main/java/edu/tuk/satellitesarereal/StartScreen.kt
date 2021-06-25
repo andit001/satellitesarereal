@@ -1,12 +1,13 @@
 package edu.tuk.satellitesarereal
 
 import android.location.Location
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -90,28 +91,38 @@ fun StartScreen(viewModel: SomeViewModel) {
         LazyColumn {
             selectedSatellites?.let { it ->
                 items(it) { satellite ->
-                    Row {
-                        Text(
-                            text = satellite.tle.name,
-                            modifier = Modifier.padding(24.dp),
-                        )
-                        Column {
-                            lastLocation?.let { location ->
-                                val stationPosition = StationPosition(
-                                    location.latitude,
-                                    location.longitude,
-                                    location.altitude,
-                                )
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, Color.Gray),
+                        elevation = 5.dp,
+                    ) {
+                        Row {
+                            Text(
+                                text = satellite.tle.name,
+                                modifier = Modifier.padding(16.dp),
+                            )
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                            ) {
+                                lastLocation?.let { location ->
+                                    val stationPosition = StationPosition(
+                                        location.latitude,
+                                        location.longitude,
+                                        location.altitude,
+                                    )
 
-                                val satPos = satellite
-                                    .getPosition(stationPosition, Date())
-                                    .getRangeCircle()[0]
-                                Text("Latitude=${satPos.latitude}")
-                                Text("Longitude=${satPos.longitude}")
+                                    val satPos = satellite
+                                        .getPosition(stationPosition, Date())
+                                        .getRangeCircle()[0]
+                                    Text("Latitude=${satPos.latitude}")
+                                    Text("Longitude=${satPos.longitude}")
+                                }
                             }
                         }
                     }
-                    Divider(color = Color.Black)
+
+                    Spacer(Modifier.height(6.dp))
                 }
             }
         }
