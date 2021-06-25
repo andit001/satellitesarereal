@@ -24,12 +24,14 @@ import com.google.android.gms.location.LocationServices
 import com.rtbishop.look4sat.domain.predict4kotlin.DeepSpaceSat
 import com.rtbishop.look4sat.domain.predict4kotlin.NearEarthSat
 import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
+import com.rtbishop.look4sat.domain.predict4kotlin.StationPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.tuk.satellitesarereal.model.SatelliteDatabase
 import edu.tuk.satellitesarereal.repositories.LocationRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -86,7 +88,7 @@ fun StartScreen(viewModel: SomeViewModel) {
         }
 
         LazyColumn {
-            selectedSatellites?.let {
+            selectedSatellites?.let { it ->
                 items(it) { satellite ->
                     Row {
                         Text(
@@ -94,7 +96,19 @@ fun StartScreen(viewModel: SomeViewModel) {
                             modifier = Modifier.padding(24.dp),
                         )
                         Column {
-                            Text(text = "position")
+                            lastLocation?.let { location ->
+                                val stationPosition = StationPosition(
+                                    location.latitude,
+                                    location.longitude,
+                                    location.altitude,
+                                )
+
+                                val satPos = satellite
+                                    .getPosition(stationPosition, Date())
+                                    .getRangeCircle()[0]
+                                Text("Latitude=${satPos.latitude}")
+                                Text("Longitude=${satPos.longitude}")
+                            }
                         }
                     }
                     Divider(color = Color.Black)
