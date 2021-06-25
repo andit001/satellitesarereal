@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "tle_entries")
 data class TleEntry (
-    @PrimaryKey val name: String,
+    val name: String,
     val epoch: Double,
     val meanmo: Double,
     val eccn: Double,
@@ -14,7 +14,7 @@ data class TleEntry (
     val raan: Double,
     val argper: Double,
     val meanan: Double,
-    val catnum: Int,
+    @PrimaryKey val catnum: Int,
     val bstar: Double,
     var isSelected: Boolean,
 ) {
