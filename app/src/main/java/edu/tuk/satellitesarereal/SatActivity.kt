@@ -9,7 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -17,15 +17,14 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
 import edu.tuk.satellitesarereal.ui.viewmodels.FilterScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
@@ -121,7 +120,11 @@ fun SatArApp() {
 }
 
 @Composable
-fun PermissionScreen(context: Context, hasPermission: Boolean, onUpdatePermission: (Boolean) -> Unit) {
+fun PermissionScreen(
+    context: Context,
+    hasPermission: Boolean,
+    onUpdatePermission: (Boolean) -> Unit,
+) {
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -147,27 +150,35 @@ fun PermissionScreen(context: Context, hasPermission: Boolean, onUpdatePermissio
 
     if (!hasPermission) {
         // Check permission
-        Button(
-            onClick = {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Button(
+                onClick = {
 //                    launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                when (PackageManager.PERMISSION_GRANTED) {
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    -> {
-                        // Some works that require permission
-                        onUpdatePermission(true)
-                        Log.d("SatAr: PermissionScreen", "Code requires permission")
-                    }
-                    else -> {
-                        // Asking for permission
-                        launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    when (PackageManager.PERMISSION_GRANTED) {
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ),
+                        -> {
+                            // Some works that require permission
+                            onUpdatePermission(true)
+                            Log.d("SatAr: PermissionScreen", "Code requires permission")
+                        }
+                        else -> {
+                            // Asking for permission
+                            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        }
                     }
                 }
+            ) {
+                Text("Get permission")
             }
-        ) {
-            Text("Get permission")
         }
     }
 }
