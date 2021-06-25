@@ -16,7 +16,7 @@ data class TleEntry (
     val meanan: Double,
     @PrimaryKey val catnum: Int,
     val bstar: Double,
-    var isSelected: Boolean,
+    @ColumnInfo(name = "is_selected") var isSelected: Boolean,
 ) {
     fun toTLE() : TLE {
         return TLE(
@@ -78,7 +78,7 @@ interface TleEntryDao {
     @Query("SELECT * FROM tle_entries WHERE name LIKE :subString")
     fun getFilteredEntries(subString: String): Flow<List<TleEntry>>
 
-    @Query("SELECT * FROM tle_entries WHERE isSelected = 1")
+    @Query("SELECT * FROM tle_entries WHERE is_selected = 1")
     fun getSelectedEntries(): Flow<List<TleEntry>>
 
     @Query("DELETE FROM tle_entries")
