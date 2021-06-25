@@ -22,11 +22,23 @@ fun FilterScreen(viewModel: FilterScreenViewModel) {
 
         Spacer(Modifier.height(16.dp))
 
-        Button(onClick = {
-            viewModel.onLoadTleData()
-        }) {
-            Text("LOAD TLE DATA")
+        Row {
+            Button(onClick = {
+                viewModel.onLoadTleData()
+            }) {
+                Text("LOAD TLE DATA")
+            }
+
+            Spacer(Modifier.width(8.dp))
+
+            Button(onClick = {
+                viewModel.onClearTleData()
+            }) {
+                Text("CLEAR TLE DATA")
+            }
         }
+
+        Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(
             value = inputText,
@@ -36,12 +48,15 @@ fun FilterScreen(viewModel: FilterScreenViewModel) {
             }
         )
 
+        Spacer(Modifier.height(8.dp))
+
         Row {
             Button(onClick = {
                 viewModel.onSelectAll()
             }) {
                 Text("SELECT ALL")
             }
+            Spacer(Modifier.width(8.dp))
             Button(onClick = {
                 viewModel.onDeselectAll()
             }) {
