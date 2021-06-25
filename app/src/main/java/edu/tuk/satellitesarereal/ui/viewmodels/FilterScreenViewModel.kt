@@ -113,6 +113,12 @@ class FilterScreenViewModel @Inject constructor(
         }
     }
 
+    fun onClearTleData() {
+        viewModelScope.launch {
+            satelliteDatabase.tleEntryDao().clear()
+        }
+    }
+
     private fun fileToTleList(fileName: String): List<TLE> {
         // TODO handle exceptions smarter (i.e. keep them away from the view)
         filesRepository.openFile(fileName).use { file ->
