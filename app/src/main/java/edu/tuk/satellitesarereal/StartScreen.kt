@@ -2,14 +2,11 @@ package edu.tuk.satellitesarereal
 
 import android.location.Location
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Checkbox
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,9 +18,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.LocationServices
-import com.rtbishop.look4sat.domain.predict4kotlin.DeepSpaceSat
-import com.rtbishop.look4sat.domain.predict4kotlin.NearEarthSat
 import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
 import com.rtbishop.look4sat.domain.predict4kotlin.StationPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -112,11 +106,10 @@ fun StartScreen(viewModel: SomeViewModel) {
                                         location.altitude,
                                     )
 
-                                    val satPos = satellite
-                                        .getPosition(stationPosition, Date())
-                                        .getRangeCircle()[0]
+                                    val satPos = satellite.getPosition(stationPosition, Date())
                                     Text("Latitude=${satPos.latitude}")
                                     Text("Longitude=${satPos.longitude}")
+                                    Text("Altitude=${satPos.altitude}")
                                 }
                             }
                         }
