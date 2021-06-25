@@ -81,6 +81,9 @@ interface TleEntryDao {
     @Query("SELECT * FROM tle_entries WHERE isSelected = 1")
     fun getSelectedEntries(): Flow<List<TleEntry>>
 
+    @Query("DELETE FROM tle_entries")
+    suspend fun clear()
+
     @Update
     suspend fun updateTles(vararg tles: TleEntry)
 
