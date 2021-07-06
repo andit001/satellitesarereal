@@ -13,6 +13,8 @@ buildscript {
         navigation_compose_version = '2.4.0-alpha04'
         kotlinx_datetime_version = '0.2.1'
         room_version = "2.4.0-alpha03"
+        sceneform_version = "1.19.3"
+        accompanist_version = "0.13.0"
     }
     repositories {
         google()
