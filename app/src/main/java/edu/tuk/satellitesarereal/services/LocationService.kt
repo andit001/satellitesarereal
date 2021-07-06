@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -28,6 +29,7 @@ class LocationService @Inject constructor(
     private var callback: (Location?) -> Unit = {}
 
     private fun checkPermission(): Boolean {
+        // TODO: Does not work as intended.
         return ActivityCompat.checkSelfPermission(context,
             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
@@ -40,6 +42,7 @@ class LocationService @Inject constructor(
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
+                Log.d("SatAr: LocationService", "Callback called.")
                 locationResult ?: return
                 for (location in locationResult.locations) {
                     callback(location)
@@ -47,8 +50,16 @@ class LocationService @Inject constructor(
             }
         }
 
+        val locationRequest = LocationRequest
+            .create()
+            .setInterval(15000)
+
+        Log.d("SatAr: LocationService", "getInterval()=${locationRequest.interval}")
+
+        fusedLocationClient.setMockMode(true)
+
         fusedLocationClient.requestLocationUpdates(
-            LocationRequest.create(),
+            locationRequest,
             locationCallback,
             Looper.getMainLooper(),
         )
