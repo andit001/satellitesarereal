@@ -28,6 +28,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import edu.tuk.satellitesarereal.ui.screens.SomeViewModel
+import edu.tuk.satellitesarereal.ui.screens.StartScreen
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
 import edu.tuk.satellitesarereal.ui.viewmodels.FilterScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
@@ -41,7 +43,7 @@ class SatActivity : ComponentActivity() {
             SatellitesAreRealTheme {
                 var hasPermission by rememberSaveable { mutableStateOf(false) }
 
-                Log.d("SatAr", "hasPermission=$hasPermission")
+                hasPermission = checkPermission(applicationContext)
 
                 if (hasPermission) {
                     SatArApp()
@@ -56,6 +58,17 @@ class SatActivity : ComponentActivity() {
     }
 }
 
+
+fun checkPermission(context: Context): Boolean {
+    return when (PackageManager.PERMISSION_GRANTED) {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ),
+        -> true
+        else -> false
+    }
+}
 
 @Composable
 fun SatArApp() {
@@ -161,13 +174,6 @@ fun PermissionScreen(
         }
     }
 
-//    if ( ContextCompat.checkSelfPermission(
-//            context,
-//            Manifest.permission.ACCESS_FINE_LOCATION
-//        ) == PackageManager.PERMISSION_GRANTED) {
-//        onUpdatePermission(true)
-//    }
-
     if (!hasPermission) {
         // Check permission
         Column(
@@ -179,21 +185,8 @@ fun PermissionScreen(
         ) {
             Button(
                 onClick = {
-//                    launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                    when (PackageManager.PERMISSION_GRANTED) {
-                        ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ),
-                        -> {
-                            // Some works that require permission
-                            onUpdatePermission(true)
-                            Log.d("SatAr: PermissionScreen", "Code requires permission")
-                        }
-                        else -> {
-                            // Asking for permission
-                            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                        }
+                    if (!checkPermission(context)) {
+                        launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                     }
                 }
             ) {
@@ -202,39 +195,3 @@ fun PermissionScreen(
         }
     }
 }
-
-//@Composable
-//fun PermissionScreen1(updatePermission: (Boolean) -> Unit) {
-//    val launcher = rememberLauncherForActivityResult(
-//        ActivityResultContracts.RequestPermission()
-//    ) { isGranted: Boolean ->
-//        if (isGranted) {
-//            // Permission Accepted: Do something
-//            updatePermission(true)
-//            Log.d("SatAr:PermissionScreen", "PERMISSION GRANTED")
-//
-//        } else {
-//            // Permission Denied: Do something
-//            updatePermission(false)
-//            Log.d("SatAr:PermissionScreen", "PERMISSION DENIED")
-//        }
-//    }
-//    val context = LocalContext.current
-//
-//    // Check permission
-//    when (PackageManager.PERMISSION_GRANTED) {
-//        ContextCompat.checkSelfPermission(
-//            context,
-//            Manifest.permission.ACCESS_FINE_LOCATION
-//        ),
-//        -> {
-//            // Some works that require permission
-//            updatePermission(true)
-//            Log.d("SatAr: PermissionScreen", "Code requires permission")
-//        }
-//        else -> {
-//            // Asking for permission
-//            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-//        }
-//    }
-//}
