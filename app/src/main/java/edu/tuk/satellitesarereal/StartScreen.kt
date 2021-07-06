@@ -1,18 +1,22 @@
 package edu.tuk.satellitesarereal
 
 import android.location.Location
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -47,6 +51,7 @@ class SomeViewModel @Inject constructor(
         getSelectedSatellites()
         locationRepository.getLastKnownLocation {
             _lastLocation.postValue(it)
+            Log.d("SatAr: SomeViewModel", "location received")
         }
     }
 
@@ -74,13 +79,22 @@ fun StartScreen(viewModel: SomeViewModel) {
     val lastLocation by viewModel.lastLocation.observeAsState()
 
     Column {
-        Text("TLE & GPS experiments.")
-
         lastLocation?.let {
             Text(
-                text = "Last location: Alt: ${it.altitude} Long: ${it.longitude}"
+                "Location of the phone:",
+                fontWeight = FontWeight.Bold,
             )
+            Text("Latitude=${it.latitude}")
+            Text("Longitude=${it.longitude}")
+            Text("Altitude=${it.altitude}")
         }
+
+        Divider(
+            color = Color.Black,
+            thickness = 2.dp,
+        )
+
+        Spacer(Modifier.height(4.dp))
 
         LazyColumn {
             selectedSatellites?.let { it ->
@@ -95,6 +109,7 @@ fun StartScreen(viewModel: SomeViewModel) {
                             Text(
                                 text = satellite.tle.name,
                                 modifier = Modifier.padding(16.dp),
+                                fontWeight = FontWeight.Bold,
                             )
                             Column(
                                 modifier = Modifier.padding(16.dp),
