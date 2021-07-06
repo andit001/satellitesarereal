@@ -15,8 +15,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
@@ -51,7 +54,6 @@ class SatActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 
@@ -65,7 +67,13 @@ fun SatArApp() {
             BottomNavigation {
                 BottomNavigationItem(
                     icon = {
-                        Icon(Icons.Filled.Favorite, contentDescription = null)
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(Icons.Filled.Favorite, contentDescription = null)
+                            Text("Start")
+                        }
                     },
                     selected = selectedItem == 0,
                     onClick = {
@@ -74,7 +82,13 @@ fun SatArApp() {
                 )
                 BottomNavigationItem(
                     icon = {
-                        Icon(Icons.Filled.Star, contentDescription = null)
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(Icons.Filled.Star, contentDescription = null)
+                            Text("Filter")
+                        }
                     },
                     selected = selectedItem == 1,
                     onClick = {
@@ -83,7 +97,13 @@ fun SatArApp() {
                 )
                 BottomNavigationItem(
                     icon = {
-                        Icon(Icons.Filled.ThumbUp, contentDescription = null)
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(Icons.Filled.ThumbUp, contentDescription = null)
+                            Text("Update")
+                        }
                     },
                     selected = selectedItem == 2,
                     onClick = {
@@ -95,7 +115,7 @@ fun SatArApp() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "StartScreen",
+            startDestination = "UpdateScreen",
             Modifier.padding(it)
         ) {
             composable(route = "StartScreen") {
