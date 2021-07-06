@@ -28,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import edu.tuk.satellitesarereal.ui.screens.ArScreen
 import edu.tuk.satellitesarereal.ui.screens.SomeViewModel
 import edu.tuk.satellitesarereal.ui.screens.StartScreen
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
@@ -100,10 +101,25 @@ fun SatArApp() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(Icons.Filled.Star, contentDescription = null)
-                            Text("Filter")
+                            Text("AR")
                         }
                     },
                     selected = selectedItem == 1,
+                    onClick = {
+                        navController.navigate("ArScreen")
+                    },
+                )
+                BottomNavigationItem(
+                    icon = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(Icons.Filled.Star, contentDescription = null)
+                            Text("Filter")
+                        }
+                    },
+                    selected = selectedItem == 2,
                     onClick = {
                         navController.navigate("FilterScreen")
                     },
@@ -118,7 +134,7 @@ fun SatArApp() {
                             Text("Update")
                         }
                     },
-                    selected = selectedItem == 2,
+                    selected = selectedItem == 3,
                     onClick = {
                         navController.navigate("UpdateScreen")
                     },
@@ -138,13 +154,16 @@ fun SatArApp() {
                 val viewModel: SomeViewModel = hiltViewModel()
                 StartScreen(viewModel)
             }
+            composable(route = "ArScreen") {
+                ArScreen()
+            }
             composable(route = "FilterScreen") {
-                selectedItem = 1
+                selectedItem = 3
                 val viewModel: FilterScreenViewModel = hiltViewModel()
                 FilterScreen(viewModel)
             }
             composable(route = "UpdateScreen") {
-                selectedItem = 2
+                selectedItem = 4
                 val viewModel: UpdateScreenViewModel = hiltViewModel()
                 UpdateScreen(viewModel)
             }
