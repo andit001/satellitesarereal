@@ -56,8 +56,6 @@ class LocationService @Inject constructor(
 
         Log.d("SatAr: LocationService", "getInterval()=${locationRequest.interval}")
 
-        fusedLocationClient.setMockMode(true)
-
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
