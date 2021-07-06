@@ -1,4 +1,4 @@
-package edu.tuk.satellitesarereal
+package edu.tuk.satellitesarereal.ui.screens
 
 import android.location.Location
 import android.util.Log
@@ -51,7 +51,6 @@ class SomeViewModel @Inject constructor(
         getSelectedSatellites()
         locationRepository.getLastKnownLocation {
             _lastLocation.postValue(it)
-            Log.d("SatAr: SomeViewModel", "location received")
         }
     }
 

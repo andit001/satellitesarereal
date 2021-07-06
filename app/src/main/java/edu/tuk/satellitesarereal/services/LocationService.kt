@@ -42,7 +42,6 @@ class LocationService @Inject constructor(
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
-                Log.d("SatAr: LocationService", "Callback called.")
                 locationResult ?: return
                 for (location in locationResult.locations) {
                     callback(location)
