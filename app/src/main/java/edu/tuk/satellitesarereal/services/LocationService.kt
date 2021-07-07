@@ -19,8 +19,6 @@ class LocationService @Inject constructor(
     @ApplicationContext val context: Context,
 ) : LocationRepository {
 
-    class NoPermissionException : Exception()
-
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 
@@ -28,17 +26,8 @@ class LocationService @Inject constructor(
 
     private var callback: (Location?) -> Unit = {}
 
-    private fun checkPermission(): Boolean {
-        // TODO: Does not work as intended.
-        return ActivityCompat.checkSelfPermission(context,
-            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-    }
-
     @SuppressLint("MissingPermission")
     override fun getLastKnownLocation(callback: (Location?) -> Unit) {
-//        if (checkPermission()) {
-//            throw NoPermissionException()
-//        }
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
