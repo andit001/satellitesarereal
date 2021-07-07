@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.ar.core.ArCoreApk
 import dagger.hilt.android.AndroidEntryPoint
 import edu.tuk.satellitesarereal.ui.screens.ArScreen
 import edu.tuk.satellitesarereal.ui.screens.SomeViewModel
@@ -39,6 +40,7 @@ class SatActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SatellitesAreRealTheme {
+                ArCoreApk.getInstance().requestInstall(this, true)
                 val permissionsState = rememberMultiplePermissionsState(
                     listOf(
                         android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -166,15 +168,17 @@ fun SatArApp() {
                 StartScreen(viewModel)
             }
             composable(route = "ArScreen") {
+                selectedItem = 1
+
                 ArScreen()
             }
             composable(route = "FilterScreen") {
-                selectedItem = 3
+                selectedItem = 2
                 val viewModel: FilterScreenViewModel = hiltViewModel()
                 FilterScreen(viewModel)
             }
             composable(route = "UpdateScreen") {
-                selectedItem = 4
+                selectedItem = 3
                 val viewModel: UpdateScreenViewModel = hiltViewModel()
                 UpdateScreen(viewModel)
             }
