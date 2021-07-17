@@ -1,7 +1,6 @@
 package edu.tuk.satellitesarereal.model
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -19,7 +18,8 @@ abstract class SatelliteDatabase : RoomDatabase() {
         fun create(context: Context): SatelliteDatabase {
             return Room.databaseBuilder(
                 context,
-                SatelliteDatabase::class.java, databaseName
+                SatelliteDatabase::class.java,
+                databaseName
             ).build()
         }
     }
