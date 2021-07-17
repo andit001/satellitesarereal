@@ -23,9 +23,9 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.ar.core.ArCoreApk
 import dagger.hilt.android.AndroidEntryPoint
 import edu.tuk.satellitesarereal.ui.screens.ArScreen
+import edu.tuk.satellitesarereal.ui.screens.ArViewModel
 import edu.tuk.satellitesarereal.ui.screens.SomeViewModel
 import edu.tuk.satellitesarereal.ui.screens.StartScreen
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
@@ -161,15 +161,13 @@ fun SatArApp() {
         ) {
             composable(route = "StartScreen") {
                 selectedItem = 0
-
-
                 val viewModel: SomeViewModel = hiltViewModel()
                 StartScreen(viewModel)
             }
             composable(route = "ArScreen") {
                 selectedItem = 1
-
-                ArScreen()
+                val viewModel: ArViewModel = hiltViewModel()
+                ArScreen(viewModel)
             }
             composable(route = "FilterScreen") {
                 selectedItem = 2
