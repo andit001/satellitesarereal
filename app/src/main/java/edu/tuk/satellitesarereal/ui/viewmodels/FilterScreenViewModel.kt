@@ -22,9 +22,6 @@ class FilterScreenViewModel @Inject constructor(
     val filesRepository: TleFilesRepository,
     val satelliteDatabase: SatelliteDatabase,
 ) : ViewModel() {
-
-    // Test-Code TODO
-
     private var filterJob: Job = Job()
 
     private val _tleEntries: MutableLiveData<List<TleEntry>> = MutableLiveData()
