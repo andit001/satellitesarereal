@@ -1,10 +1,7 @@
 package edu.tuk.satellitesarereal.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
-import android.opengl.GLES20
-import android.opengl.GLSurfaceView
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -34,8 +31,6 @@ import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
 import kotlin.math.sqrt
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
@@ -215,15 +210,15 @@ fun ArScreen(viewModel: ArViewModel) {
 }
 
 
-@Composable
-fun AugmentCamera(modifier: Modifier) {
-    AndroidView(
-        factory = {
-            MyGLSurfaceView(it)
-        },
-        modifier = modifier
-    )
-}
+//@Composable
+//fun AugmentCamera(modifier: Modifier) {
+//    AndroidView(
+//        factory = {
+//            MyGLSurfaceView(it)
+//        },
+//        modifier = modifier
+//    )
+//}
 
 
 @Composable
@@ -275,35 +270,35 @@ private fun bindPreview(
     )
 }
 
-class MyGLRenderer : GLSurfaceView.Renderer {
-
-    override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
-        // Set the background frame color
-        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 0.5f)
-    }
-
-    override fun onDrawFrame(unused: GL10) {
-        // Redraw background color
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-    }
-
-    override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
-    }
-}
-
-class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
-
-    private val renderer: MyGLRenderer
-
-    init {
-
-        // Create an OpenGL ES 2.0 context
-        setEGLContextClientVersion(2)
-
-        renderer = MyGLRenderer()
-
-        // Set the Renderer for drawing on the GLSurfaceView
-        setRenderer(renderer)
-    }
-}
+//class MyGLRenderer : GLSurfaceView.Renderer {
+//
+//    override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
+//        // Set the background frame color
+//        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 0.5f)
+//    }
+//
+//    override fun onDrawFrame(unused: GL10) {
+//        // Redraw background color
+//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+//    }
+//
+//    override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
+//        GLES20.glViewport(0, 0, width, height)
+//    }
+//}
+//
+//class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
+//
+//    private val renderer: MyGLRenderer
+//
+//    init {
+//
+//        // Create an OpenGL ES 2.0 context
+//        setEGLContextClientVersion(2)
+//
+//        renderer = MyGLRenderer()
+//
+//        // Set the Renderer for drawing on the GLSurfaceView
+//        setRenderer(renderer)
+//    }
+//}
