@@ -40,7 +40,6 @@ class SatActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SatellitesAreRealTheme {
-                ArCoreApk.getInstance().requestInstall(this, true)
                 val permissionsState = rememberMultiplePermissionsState(
                     listOf(
                         android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -60,7 +59,7 @@ class SatActivity : ComponentActivity() {
 @Composable
 private fun PermissionScreen(
     permissionsState: MultiplePermissionsState,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     when {
         permissionsState.allPermissionsGranted -> {
