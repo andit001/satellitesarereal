@@ -15,6 +15,7 @@ buildscript {
         room_version = "2.4.0-alpha03"
         sceneform_version = "1.19.3"
         accompanist_version = "0.13.0"
+        camerax_version = "1.0.0"
     }
     repositories {
         google()
