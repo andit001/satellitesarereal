@@ -26,20 +26,14 @@ class OrientationService @Inject constructor(
 
     override fun addListener(listener: (rotationMatrix: FloatArray) -> Unit) {
         if (listener != this.listener) {
-            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.also {
+            sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)?.also {
                 sensorManager.registerListener(
                     this,
                     it,
-                    11000,
+                    8000,
                 )
             }
-            sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.also {
-                sensorManager.registerListener(
-                    this,
-                    it,
-                    11000,
-                )
-            }
+
             this.listener = listener
         } else {
             Log.d(TAG, "WARNING: Tried to add the same listener twice.")
@@ -59,33 +53,10 @@ class OrientationService @Inject constructor(
             return
         }
         if (listener != null) {
-            if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
-                System.arraycopy(
-                    event.values,
-                    0,
-                    accelerometerReading,
-                    0,
-                    accelerometerReading.size
-                )
+            if (event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+                listener?.let { it(rotationMatrix) }
             }
-            if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) {
-                System.arraycopy(
-                    event.values,
-                    0,
-                    magnetometerReading,
-                    0,
-                    magnetometerReading.size
-                )
-            }
-
-            SensorManager.getRotationMatrix(
-                rotationMatrix,
-                null,
-                accelerometerReading,
-                magnetometerReading,
-            )
-
-            listener?.let { it(rotationMatrix) }
         }
     }
 
