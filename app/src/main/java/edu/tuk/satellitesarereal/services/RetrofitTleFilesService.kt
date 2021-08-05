@@ -21,7 +21,7 @@ import javax.inject.Singleton
 // https://stackoverflow.com/a/61093017
 // https://developer.android.com/training/data-storage/app-specific.
 
-const val TAG = "SatAr:RetrofitTleFilesService"
+private const val TAG = "SatAr:RetrofitTleFilesService"
 const val BUFFER_SIZE = 4 * 1024
 
 interface TleFilesDownloader {

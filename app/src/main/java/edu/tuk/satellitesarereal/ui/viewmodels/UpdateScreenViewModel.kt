@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import java.net.UnknownHostException
 import javax.inject.Inject
 
-const val TAG = "SatAr:SomeViewModel"
+private const val TAG = "SatAr:SomeViewModel"
 
 @HiltViewModel
 class UpdateScreenViewModel @Inject constructor(
