@@ -5,9 +5,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
-import com.rtbishop.look4sat.domain.predict4kotlin.Satellite.Vector4
 import edu.tuk.satellitesarereal.repositories.OrientationRepository
-import edu.tuk.satellitesarereal.ui.screens.magnitude
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,8 +19,6 @@ class OrientationService @Inject constructor(
     private var listener: ((rotationMatrix: FloatArray) -> Unit)? = null
     private var accuracy: Int = SensorManager.SENSOR_STATUS_UNRELIABLE
     private val rotationMatrix = FloatArray(16)
-    private val accelerometerReading = FloatArray(3)
-    private val magnetometerReading = FloatArray(3)
 
     override fun addListener(listener: (rotationMatrix: FloatArray) -> Unit) {
         if (listener != this.listener) {
