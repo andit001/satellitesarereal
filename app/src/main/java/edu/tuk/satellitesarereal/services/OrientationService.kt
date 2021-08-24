@@ -4,6 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.hardware.SensorManager.*
 import android.util.Log
 import edu.tuk.satellitesarereal.repositories.OrientationRepository
 import javax.inject.Inject
@@ -48,10 +49,12 @@ class OrientationService @Inject constructor(
         if (event == null) {
             return
         }
-        if (listener != null) {
+        listener?.let {
             if (event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
                 SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
-                listener?.let { it(rotationMatrix) }
+//                val result = FloatArray(16)
+//                SensorManager.remapCoordinateSystem(rotationMatrix, AXIS_MINUS_Y, AXIS_X, result)
+                it(rotationMatrix)
             }
         }
     }
