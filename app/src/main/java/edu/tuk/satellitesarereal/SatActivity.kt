@@ -25,10 +25,10 @@ import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
 import edu.tuk.satellitesarereal.ui.screens.ArScreen
-import edu.tuk.satellitesarereal.ui.screens.ArViewModel
 import edu.tuk.satellitesarereal.ui.screens.SomeViewModel
 import edu.tuk.satellitesarereal.ui.screens.StartScreen
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
+import edu.tuk.satellitesarereal.ui.viewmodels.ArViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.FilterScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
 
