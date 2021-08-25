@@ -118,19 +118,4 @@ class UpdateScreenViewModel @Inject constructor(
             getFileList()
         }
     }
-
-    class Factory(
-        private val appSettingsRepository: AppSettingsRepository,
-        private val tleFilesRepository: TleFilesRepository,
-    ) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            @Suppress("UNCHECKED_CAST")
-            return UpdateScreenViewModel(
-                appSettingsRepository = appSettingsRepository,
-                tleFilesRepository = tleFilesRepository
-            ) as T
-        }
-    }
-
 }
