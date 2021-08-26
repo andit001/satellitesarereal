@@ -156,7 +156,7 @@ fun SatArApp() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "UpdateScreen",
+            startDestination = "ArScreen",
             Modifier.padding(it)
         ) {
             composable(route = "StartScreen") {

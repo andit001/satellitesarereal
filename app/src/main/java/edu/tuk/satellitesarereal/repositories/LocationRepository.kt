@@ -3,5 +3,6 @@ package edu.tuk.satellitesarereal.repositories
 import android.location.Location
 
 interface LocationRepository {
-    fun getLastKnownLocation(callback: (Location?) -> Unit)
+    fun registerLocationListener(callback: (Location?) -> Unit)
+    fun unregister()
 }
