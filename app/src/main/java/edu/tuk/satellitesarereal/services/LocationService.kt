@@ -27,7 +27,7 @@ class LocationService @Inject constructor(
     private var callback: (Location?) -> Unit = {}
 
     @SuppressLint("MissingPermission")
-    override fun getLastKnownLocation(callback: (Location?) -> Unit) {
+    override fun registerLocationListener(callback: (Location?) -> Unit) {
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
@@ -51,5 +51,9 @@ class LocationService @Inject constructor(
         )
 
         this.callback = callback
+    }
+
+    override fun unregister() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }

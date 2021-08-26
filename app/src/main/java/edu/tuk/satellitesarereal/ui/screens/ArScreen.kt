@@ -11,6 +11,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -33,6 +34,12 @@ import kotlin.math.abs
 
 @Composable
 fun ArScreen(viewModel: ArViewModel) {
+
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onStart()
+
+        onDispose { viewModel.onStop() }
+    }
 
     val satellites by viewModel.selectedSatellites.observeAsState()
     val lastLocation by viewModel.lastLocation.observeAsState()
@@ -113,7 +120,7 @@ private fun RenderSatellites(
                 .toList()
                 .onEach { coordinates ->
                     val offset = calculateOffset(
-                        null,
+                        null,  // Vector is already projected.
                         canvasWidth,
                         canvasHeight,
                         coordinates

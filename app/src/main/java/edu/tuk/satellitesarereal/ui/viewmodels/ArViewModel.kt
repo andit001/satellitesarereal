@@ -2,6 +2,7 @@ package edu.tuk.satellitesarereal.ui.viewmodels
 
 import android.location.Location
 import android.opengl.Matrix
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,11 +20,13 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
+private const val TAG = "SatAr::ArViewModel"
+
 @HiltViewModel
 class ArViewModel @Inject constructor(
     val satelliteDatabase: SatelliteDatabase,
-    locationRepository: LocationRepository,
-    orientationRepository: OrientationRepository,
+    val locationRepository: LocationRepository,
+    val orientationRepository: OrientationRepository,
 ) : ViewModel() {
 
     private var getSatellitesJob: Job = Job()
@@ -32,7 +35,7 @@ class ArViewModel @Inject constructor(
     val selectedSatellites: LiveData<List<Satellite>> = _selectedSatellites
 
     private val _lastLocation: MutableLiveData<Location?> = MutableLiveData()
-    val lastLocation: LiveData<Location?> = _lastLocation
+     val lastLocation: LiveData<Location?> = _lastLocation
 
     private val _rotationMatrix: MutableLiveData<FloatArray?> = MutableLiveData()
     val rotationMatrix: LiveData<FloatArray?> = _rotationMatrix
@@ -47,9 +50,12 @@ class ArViewModel @Inject constructor(
     )
     val eciToPhoneTransformationM: LiveData<FloatArray?> = _eciToPhoneTransformationM
 
-    init {
+    // Start/Stop called by DisposableEffect to make sure the listeners are unregistered as the
+    // user navigates away from the ArScreen.
+    fun onStart() {
+        Log.d(TAG, "onStart() called.")
         getSelectedSatellites()
-        locationRepository.getLastKnownLocation {
+        locationRepository.registerLocationListener {
             _lastLocation.postValue(it)
             calculateEciToPhoneTransformationM()
         }
@@ -57,6 +63,11 @@ class ArViewModel @Inject constructor(
             onReceiveRotationMatrix(it)
             calculateEciToPhoneTransformationM()
         }
+    }
+
+    fun onStop() {
+        orientationRepository.removeListener()
+        locationRepository.unregister()
     }
 
     private fun getSelectedSatellites() {
