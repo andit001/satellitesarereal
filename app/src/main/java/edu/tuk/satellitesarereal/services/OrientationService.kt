@@ -23,11 +23,16 @@ class OrientationService @Inject constructor(
 
     override fun addListener(listener: (rotationMatrix: FloatArray) -> Unit) {
         if (listener != this.listener) {
+
+            if (this.listener != null) {
+                sensorManager.unregisterListener(this)
+            }
+
             sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)?.also {
                 sensorManager.registerListener(
                     this,
                     it,
-                    8000,
+                    33000,
                 )
             }
 
