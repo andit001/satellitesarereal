@@ -83,6 +83,34 @@ fun FloatArray.normalize(): FloatArray {
     return this
 }
 
+fun multiplyMM(lhs: FloatArray, rhs: FloatArray): FloatArray {
+    val scratch = FloatArray(16)
+    Matrix.multiplyMM(
+        scratch,
+        0,
+        lhs,
+        0,
+        rhs,
+        0
+    )
+
+    return scratch
+}
+
+fun multiplyMV(lhs: FloatArray, rhs: FloatArray): FloatArray {
+    val scratch = FloatArray(4)
+    Matrix.multiplyMV(
+        scratch,
+        0,
+        lhs,
+        0,
+        rhs,
+        0,
+    )
+
+    return scratch
+}
+
 fun dotProduct(lhs: FloatArray, rhs: FloatArray): Float {
     return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2]
 }

@@ -117,14 +117,9 @@ class ArViewModel @Inject constructor(
                         // Rename the axes to phone coordinate-naming. Use the fact that the
                         // direction of the obsPosVector is the same as the Z-Vector in the phone's
                         // coordinate system.
-                        val obsZVector = FloatArray(4)
-                        Matrix.multiplyMV(
-                            obsZVector,
-                            0,
+                        val obsZVector = multiplyMV(
                             transformAxesMatrix,
-                            0,
-                            obsPosVector.asFloatArray(),
-                            0
+                            obsPosVector.asFloatArray()
                         )
 
                         // Normalize the vector.
@@ -155,19 +150,14 @@ class ArViewModel @Inject constructor(
                         // coordinate system.
 
                         // Make sure the axes are in the right order.
-                        val translation = FloatArray(4)
-                        Matrix.multiplyMV(
-                            translation,
-                            0,
+                        val translation = multiplyMV(
                             transformAxesMatrix,
-                            0,
                             floatArrayOf(
                                 -satellite.getObsPosVector(stationPosition, Date()).x.toFloat(),
                                 -satellite.getObsPosVector(stationPosition, Date()).y.toFloat(),
                                 -satellite.getObsPosVector(stationPosition, Date()).z.toFloat(),
                                 1.0f,
                             ),
-                            0
                         )
 
                         // Create a transformation matrix to map ECI coordinates to phone
@@ -198,26 +188,15 @@ class ArViewModel @Inject constructor(
                         }
 
                         // Apply the renaming of the axes.
-                        var eciToPhoneTransformMatrix = FloatArray(16)
-                        Matrix.multiplyMM(
-                            eciToPhoneTransformMatrix,
-                            0,
+                        var eciToPhoneTransformMatrix = multiplyMM(
                             transformationMatrix,
-                            0,
                             transformAxesMatrix,
-                            0,
                         )
 
-                        val scratch = FloatArray(16)
-                        Matrix.multiplyMM(
-                            scratch,
-                            0,
-                            rotationMatrix.value,
-                            0,
+                        eciToPhoneTransformMatrix = multiplyMM(
+                            rotationMatrix.value!!,
                             eciToPhoneTransformMatrix,
-                            0
                         )
-                        eciToPhoneTransformMatrix = scratch.copyOf()
 
                         _eciToPhoneTransformationM.postValue(eciToPhoneTransformMatrix)
                     }

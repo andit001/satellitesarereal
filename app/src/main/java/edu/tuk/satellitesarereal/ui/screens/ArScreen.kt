@@ -93,24 +93,13 @@ private fun RenderSatellites(
                 lastLocation.altitude,
             )
 
+            // Model-View-Projection matrix (the real mvp).
+            val mvpMatrix = multiplyMM(projectionMatrix, eciToPhoneTransformationM)
+
             satellites
                 .asSequence()
                 .map { it.getSatPosVector(stationPosition, Date()) }
-                .map { satVector ->
-                    eciToPhoneTransformationM.let {
-                        val transformedSatVector = FloatArray(4)
-                        Matrix.multiplyMV(
-                            transformedSatVector,
-                            0,
-                            it,
-                            0,
-                            satVector.asFloatArray(),
-                            0,
-                        )
-                        transformedSatVector
-                    }
-                }
-                .map { satVector -> projectVector(projectionMatrix, satVector) }
+                .map { multiplyMV(mvpMatrix, it.asFloatArray()) }
                 .filter {
                     // Clip satellites which can't be seen.
                     abs(it[3]) >= abs(it[0]) &&
