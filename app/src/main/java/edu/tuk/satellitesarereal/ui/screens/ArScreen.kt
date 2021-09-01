@@ -2,7 +2,6 @@ package edu.tuk.satellitesarereal.ui.screens
 
 import android.annotation.SuppressLint
 import android.location.Location
-import android.opengl.Matrix
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -16,9 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
@@ -109,7 +106,7 @@ private fun RenderSatellites(
                 .toList()
                 .onEach { coordinates ->
                     val offset = calculateOffset(
-                        null,  // Vector is already projected.
+                        null,  // Vector is projected already.
                         canvasWidth,
                         canvasHeight,
                         coordinates
