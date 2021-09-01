@@ -18,8 +18,6 @@ fun FilterScreen(viewModel: FilterScreenViewModel) {
     var inputText by remember { mutableStateOf("") }
 
     Column {
-        Text("Room db experiments.")
-
         Spacer(Modifier.height(16.dp))
 
         Row {
