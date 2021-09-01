@@ -1,7 +1,6 @@
 package edu.tuk.satellitesarereal.ui.viewmodels
 
 import android.location.Location
-import android.opengl.Matrix
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,7 +34,7 @@ class ArViewModel @Inject constructor(
     val selectedSatellites: LiveData<List<Satellite>> = _selectedSatellites
 
     private val _lastLocation: MutableLiveData<Location?> = MutableLiveData()
-     val lastLocation: LiveData<Location?> = _lastLocation
+    val lastLocation: LiveData<Location?> = _lastLocation
 
     private val _rotationMatrix: MutableLiveData<FloatArray?> = MutableLiveData()
     val rotationMatrix: LiveData<FloatArray?> = _rotationMatrix
@@ -197,6 +196,7 @@ class ArViewModel @Inject constructor(
                             transformAxesMatrix,
                         )
 
+                        // Lastly, calculate the rotation of the phone in.
                         eciToPhoneTransformMatrix = multiplyMM(
                             rotationMatrix.value!!,
                             eciToPhoneTransformMatrix,
