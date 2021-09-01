@@ -111,6 +111,10 @@ class ArViewModel @Inject constructor(
                         location.altitude,
                     )
 
+                    if (satellites.isEmpty()) {
+                        return@launch
+                    }
+
                     satellites.first().also { satellite ->
                         val obsPosVector = satellite.getObsPosVector(stationPosition, Date())
 
