@@ -1,7 +1,5 @@
 package edu.tuk.satellitesarereal.ui.screens
 
-import android.location.Location
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,65 +13,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
 import com.rtbishop.look4sat.domain.predict4kotlin.StationPosition
-import dagger.hilt.android.lifecycle.HiltViewModel
-import edu.tuk.satellitesarereal.model.SatelliteDatabase
-import edu.tuk.satellitesarereal.repositories.LocationRepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import edu.tuk.satellitesarereal.ui.viewmodels.InfoScreenViewModel
 import java.util.*
-import javax.inject.Inject
-
-@HiltViewModel
-class SomeViewModel @Inject constructor(
-    val satelliteDatabase: SatelliteDatabase,
-    val locationRepository: LocationRepository,
-) : ViewModel() {
-
-    private var getSatellitesJob: Job = Job()
-
-    private val _selectedTles: MutableLiveData<List<Satellite>> = MutableLiveData()
-    val selectedSatellites: LiveData<List<Satellite>> = _selectedTles
-
-    private val _lastLocation: MutableLiveData<Location?> = MutableLiveData()
-    val lastLocation: LiveData<Location?> = _lastLocation
-
-    init {
-        getSelectedSatellites()
-        locationRepository.getLastKnownLocation {
-            _lastLocation.postValue(it)
-        }
-    }
-
-    private fun getSelectedSatellites() {
-        getSatellitesJob.cancel()
-        getSatellitesJob = viewModelScope.launch {
-            satelliteDatabase
-                .tleEntryDao()
-                .getSelectedEntries()
-                .collect { tleEntries ->
-                    tleEntries
-                        .map { it.toTLE() }
-                        .mapNotNull {
-                            Satellite.createSat(it)
-                        }
-                        .also { _selectedTles.postValue(it) }
-                }
-        }
-    }
-}
 
 @Composable
-fun StartScreen(viewModel: SomeViewModel) {
+fun InfoScreen(viewModel: InfoScreenViewModel) {
     val selectedSatellites by viewModel.selectedSatellites.observeAsState()
     val lastLocation by viewModel.lastLocation.observeAsState()
 
@@ -88,12 +35,19 @@ fun StartScreen(viewModel: SomeViewModel) {
             Text("Altitude=${it.altitude}")
         }
 
-        Divider(
-            color = Color.Black,
-            thickness = 2.dp,
+        Spacer(Modifier.height(4.dp))
+
+        Text(
+            "Selected satellites:",
+            fontWeight = FontWeight.Bold,
         )
 
-        Spacer(Modifier.height(4.dp))
+        Divider(
+            color = Color.Black,
+            thickness = 1.dp,
+        )
+
+        Spacer(Modifier.height(1.dp))
 
         LazyColumn {
             selectedSatellites?.let { it ->

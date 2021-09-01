@@ -25,11 +25,11 @@ import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
 import edu.tuk.satellitesarereal.ui.screens.ArScreen
-import edu.tuk.satellitesarereal.ui.screens.SomeViewModel
-import edu.tuk.satellitesarereal.ui.screens.StartScreen
+import edu.tuk.satellitesarereal.ui.screens.InfoScreen
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
 import edu.tuk.satellitesarereal.ui.viewmodels.ArViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.FilterScreenViewModel
+import edu.tuk.satellitesarereal.ui.viewmodels.InfoScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
 
 @AndroidEntryPoint
@@ -97,13 +97,13 @@ fun SatArApp() {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(Icons.Filled.Favorite, contentDescription = null)
-                            Text("Start")
+                            Icon(Icons.Filled.Star, contentDescription = null)
+                            Text("Filter")
                         }
                     },
                     selected = selectedItem == 0,
                     onClick = {
-                        navController.navigate("StartScreen")
+                        navController.navigate("FilterScreen")
                     },
                 )
                 BottomNavigationItem(
@@ -127,13 +127,13 @@ fun SatArApp() {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(Icons.Filled.Star, contentDescription = null)
-                            Text("Filter")
+                            Icon(Icons.Filled.Favorite, contentDescription = null)
+                            Text("Info")
                         }
                     },
                     selected = selectedItem == 2,
                     onClick = {
-                        navController.navigate("FilterScreen")
+                        navController.navigate("InfoScreen")
                     },
                 )
                 BottomNavigationItem(
@@ -156,23 +156,23 @@ fun SatArApp() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "ArScreen",
+            startDestination = "FilterScreen",
             Modifier.padding(it)
         ) {
-            composable(route = "StartScreen") {
+            composable(route = "FilterScreen") {
                 selectedItem = 0
-                val viewModel: SomeViewModel = hiltViewModel()
-                StartScreen(viewModel)
+                val viewModel: FilterScreenViewModel = hiltViewModel()
+                FilterScreen(viewModel)
             }
             composable(route = "ArScreen") {
                 selectedItem = 1
                 val viewModel: ArViewModel = hiltViewModel()
                 ArScreen(viewModel)
             }
-            composable(route = "FilterScreen") {
+            composable(route = "InfoScreen") {
                 selectedItem = 2
-                val viewModel: FilterScreenViewModel = hiltViewModel()
-                FilterScreen(viewModel)
+                val viewModel: InfoScreenViewModel = hiltViewModel()
+                InfoScreen(viewModel)
             }
             composable(route = "UpdateScreen") {
                 selectedItem = 3
