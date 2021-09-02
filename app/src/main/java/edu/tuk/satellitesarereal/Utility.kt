@@ -65,6 +65,15 @@ fun Satellite.Vector4.asFloatArray(): FloatArray {
     }
 }
 
+operator fun Satellite.Vector4.minus(rhs: Satellite.Vector4): Satellite.Vector4 {
+    val lhs = this
+    return Satellite.Vector4().apply {
+        x = lhs.x - rhs.x
+        y = lhs.y - rhs.y
+        z = lhs.z - rhs.z
+    }
+}
+
 fun FloatArray.asVector4(): Satellite.Vector4 {
     return Satellite.Vector4().apply {
         x = get(0).toDouble()
@@ -183,7 +192,7 @@ fun projectVector(
 
 // Can be handy sometimes.
 fun printMatrix(matrix: FloatArray) {
-    for ((i, v)  in matrix.withIndex()) {
+    for ((i, v) in matrix.withIndex()) {
         if (i != 0 && i % 4 == 0) {
             print('\n')
         }
