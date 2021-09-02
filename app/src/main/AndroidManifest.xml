@@ -17,8 +17,7 @@
         android:theme="@style/Theme.SatellitesAreReal">
         <service
             android:name="SatApplication"
-            android:foregroundServiceType="location">
-        </service>
+            android:foregroundServiceType="location"></service>
         <activity
             android:name=".SatActivity"
             android:exported="true"
