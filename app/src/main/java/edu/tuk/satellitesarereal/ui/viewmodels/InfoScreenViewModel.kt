@@ -28,11 +28,15 @@ class InfoScreenViewModel @Inject constructor(
     private val _lastLocation: MutableLiveData<Location?> = MutableLiveData()
     val lastLocation: LiveData<Location?> = _lastLocation
 
-    init {
+    fun onStart() {
         getSelectedSatellites()
         locationRepository.registerLocationListener {
             _lastLocation.postValue(it)
         }
+    }
+
+    fun onStop() {
+        locationRepository.unregister()
     }
 
     private fun getSelectedSatellites() {

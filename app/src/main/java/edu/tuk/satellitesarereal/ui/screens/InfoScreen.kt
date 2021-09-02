@@ -9,6 +9,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -21,6 +22,13 @@ import java.util.*
 
 @Composable
 fun InfoScreen(viewModel: InfoScreenViewModel) {
+
+    DisposableEffect(viewModel) {
+        viewModel.onStart()
+
+        onDispose { viewModel.onStop() }
+    }
+
     val selectedSatellites by viewModel.selectedSatellites.observeAsState()
     val lastLocation by viewModel.lastLocation.observeAsState()
 
