@@ -5,7 +5,7 @@ import com.rtbishop.look4sat.domain.predict4kotlin.TLE
 import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "tle_entries")
-data class TleEntry (
+data class TleEntry(
     val name: String,
     val epoch: Double,
     val meanmo: Double,
@@ -18,35 +18,35 @@ data class TleEntry (
     val bstar: Double,
     @ColumnInfo(name = "is_selected") var isSelected: Boolean,
 ) {
-    fun toTLE() : TLE {
+    fun toTLE(): TLE {
         return TLE(
-        name,
-        epoch,
-        meanmo,
-        eccn,
-        incl,
-        raan,
-        argper,
-        meanan,
-        catnum,
-        bstar,
+            name,
+            epoch,
+            meanmo,
+            eccn,
+            incl,
+            raan,
+            argper,
+            meanan,
+            catnum,
+            bstar,
         )
     }
 
     companion object {
         fun fromTLE(tle: TLE, isSelected: Boolean = false): TleEntry {
             return TleEntry(
-               tle.name,
-               tle.epoch,
-               tle.meanmo,
-               tle.eccn,
-               tle.incl,
-               tle.raan,
-               tle.argper,
-               tle.meanan,
-               tle.catnum,
-               tle.bstar,
-               isSelected,
+                tle.name,
+                tle.epoch,
+                tle.meanmo,
+                tle.eccn,
+                tle.incl,
+                tle.raan,
+                tle.argper,
+                tle.meanan,
+                tle.catnum,
+                tle.bstar,
+                isSelected,
             )
         }
 

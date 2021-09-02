@@ -2,7 +2,10 @@ package edu.tuk.satellitesarereal.ui.viewmodels
 
 import android.util.Log
 import android.util.Patterns.WEB_URL
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
 import edu.tuk.satellitesarereal.repositories.TleFilesRepository
@@ -31,7 +34,6 @@ class UpdateScreenViewModel @Inject constructor(
         readUrls()
         getFileList()
     }
-
 
     private fun readUrls() {
         viewModelScope.launch {

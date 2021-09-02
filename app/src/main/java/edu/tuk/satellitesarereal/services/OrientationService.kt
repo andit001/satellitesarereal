@@ -4,7 +4,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.hardware.SensorManager.*
 import android.util.Log
 import edu.tuk.satellitesarereal.repositories.OrientationRepository
 import javax.inject.Inject

@@ -3,7 +3,6 @@ package edu.tuk.satellitesarereal
 import android.content.Context
 import android.content.Context.SENSOR_SERVICE
 import android.hardware.SensorManager
-import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +17,6 @@ import edu.tuk.satellitesarereal.services.DataStoreAppSettingsService
 import edu.tuk.satellitesarereal.services.LocationService
 import edu.tuk.satellitesarereal.services.OrientationService
 import edu.tuk.satellitesarereal.services.RetrofitTleFilesService
-import javax.inject.Inject
 import javax.inject.Singleton
 
 @Module
@@ -50,13 +48,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSatellitesDatabase(@ApplicationContext context: Context) : SatelliteDatabase {
+    fun provideSatellitesDatabase(@ApplicationContext context: Context): SatelliteDatabase {
         return SatelliteDatabase.create(context)
     }
 
     @Provides
     @Singleton
-    fun provideOrientationRepository(@ApplicationContext context: Context) : OrientationRepository {
+    fun provideOrientationRepository(@ApplicationContext context: Context): OrientationRepository {
         return OrientationService(
             context.getSystemService(SENSOR_SERVICE) as SensorManager
         )
