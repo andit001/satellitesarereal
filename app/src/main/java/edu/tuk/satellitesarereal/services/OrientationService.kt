@@ -20,7 +20,7 @@ class OrientationService @Inject constructor(
     private var accuracy: Int = SensorManager.SENSOR_STATUS_UNRELIABLE
     private val rotationMatrix = FloatArray(16)
 
-    override fun addListener(listener: (rotationMatrix: FloatArray) -> Unit) {
+    override fun registerListener(listener: (rotationMatrix: FloatArray) -> Unit) {
         if (listener != this.listener) {
 
             if (this.listener != null) {
@@ -41,7 +41,7 @@ class OrientationService @Inject constructor(
         }
     }
 
-    override fun removeListener() {
+    override fun unregisterListener() {
         sensorManager.unregisterListener(this)
         listener = null
     }

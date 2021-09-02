@@ -56,7 +56,7 @@ class ArViewModel @Inject constructor(
             _lastLocation.postValue(it)
             calculateEciToPhoneTransformationM()
         }
-        orientationRepository.addListener {
+        orientationRepository.registerListener {
             onReceiveRotationMatrix(it)
             calculateEciToPhoneTransformationM()
         }
@@ -64,7 +64,7 @@ class ArViewModel @Inject constructor(
 
     fun onStop() {
         locationRepository.unregister()
-        orientationRepository.removeListener()
+        orientationRepository.unregisterListener()
     }
 
     private fun getSelectedSatellites() {
