@@ -1,7 +1,6 @@
 package edu.tuk.satellitesarereal.ui.viewmodels
 
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -52,7 +51,6 @@ class ArViewModel @Inject constructor(
     // Start/Stop called by DisposableEffect to make sure the listeners are unregistered as the
     // user navigates away from the ArScreen.
     fun onStart() {
-        Log.d(TAG, "onStart() called.")
         getSelectedSatellites()
         locationRepository.registerLocationListener {
             _lastLocation.postValue(it)
@@ -65,8 +63,8 @@ class ArViewModel @Inject constructor(
     }
 
     fun onStop() {
-        orientationRepository.removeListener()
         locationRepository.unregister()
+        orientationRepository.removeListener()
     }
 
     private fun getSelectedSatellites() {
