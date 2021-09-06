@@ -2,7 +2,6 @@ package edu.tuk.satellitesarereal.services
 
 import android.content.Context
 import android.content.Context.WINDOW_SERVICE
-import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -11,8 +10,6 @@ import android.hardware.SensorManager.*
 import android.util.Log
 import android.view.Surface
 import android.view.WindowManager
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.core.content.ContextCompat.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import edu.tuk.satellitesarereal.repositories.OrientationRepository
 import javax.inject.Inject
@@ -67,18 +64,28 @@ class OrientationService @Inject constructor(
             if (event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
                 SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
 
-                val orientation = (context.getSystemService(WINDOW_SERVICE) as WindowManager)
+                val rotation = (context.getSystemService(WINDOW_SERVICE) as WindowManager)
                     .defaultDisplay
                     .rotation
 
                 val result = FloatArray(16)
-                when (orientation) {
+                when (rotation) {
                     Surface.ROTATION_90 -> {
-                        SensorManager.remapCoordinateSystem(rotationMatrix, AXIS_Y, AXIS_MINUS_X, result)
+                        SensorManager.remapCoordinateSystem(
+                            rotationMatrix,
+                            AXIS_Y,
+                            AXIS_MINUS_X,
+                            result
+                        )
                         it(result)
                     }
                     Surface.ROTATION_270 -> {
-                        SensorManager.remapCoordinateSystem(rotationMatrix, AXIS_MINUS_Y, AXIS_X, result)
+                        SensorManager.remapCoordinateSystem(
+                            rotationMatrix,
+                            AXIS_MINUS_Y,
+                            AXIS_X,
+                            result
+                        )
                         it(result)
                     }
                     else -> it(rotationMatrix)
