@@ -56,6 +56,7 @@ object AppModule {
     @Singleton
     fun provideOrientationRepository(@ApplicationContext context: Context): OrientationRepository {
         return OrientationService(
+            context,
             context.getSystemService(SENSOR_SERVICE) as SensorManager
         )
     }
