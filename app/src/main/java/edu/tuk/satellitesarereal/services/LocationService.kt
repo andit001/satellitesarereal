@@ -11,6 +11,8 @@ import edu.tuk.satellitesarereal.repositories.LocationRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val TAG = "SatAr:LocationService"
+
 @Singleton
 class LocationService @Inject constructor(
     @ApplicationContext val context: Context,
@@ -25,7 +27,6 @@ class LocationService @Inject constructor(
 
     @SuppressLint("MissingPermission")
     override fun registerLocationListener(callback: (Location?) -> Unit) {
-
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
@@ -39,13 +40,17 @@ class LocationService @Inject constructor(
             .create()
             .setInterval(15000)
 
-        Log.d("SatAr: LocationService", "getInterval()=${locationRequest.interval}")
+//        Log.d("SatAr: LocationService", "getInterval()=${locationRequest.interval}")
 
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
             Looper.getMainLooper(),
         )
+
+//        if (!ret.isSuccessful) {
+//            Log.e(TAG, "location request failed")
+//        }
 
         this.callback = callback
     }
