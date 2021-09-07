@@ -24,7 +24,7 @@ class OrientationService @Inject constructor(
 ) : OrientationRepository, SensorEventListener {
 
     private var listener: ((rotationMatrix: FloatArray) -> Unit)? = null
-    private var accuracy: Int = SensorManager.SENSOR_STATUS_UNRELIABLE
+    private var accuracy: Int = SENSOR_STATUS_UNRELIABLE
     private val rotationMatrix = FloatArray(16)
 
     override fun registerListener(listener: (rotationMatrix: FloatArray) -> Unit) {
@@ -54,7 +54,7 @@ class OrientationService @Inject constructor(
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
+        if (accuracy == SENSOR_STATUS_UNRELIABLE) {
             return
         }
         if (event == null) {
@@ -62,33 +62,44 @@ class OrientationService @Inject constructor(
         }
         listener?.let {
             if (event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
-                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+                getRotationMatrixFromVector(rotationMatrix, event.values)
 
-                val rotation = (context.getSystemService(WINDOW_SERVICE) as WindowManager)
-                    .defaultDisplay
-                    .rotation
+                // defaultDisplay was marked as deprecated in API level 30. Use it only if the API
+                // level is lower and use context.display otherwise.
+                val display =
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        context.display
+                    } else {
+                            @Suppress("DEPRECATION")
+                            (context.getSystemService(WINDOW_SERVICE) as WindowManager)
+                                .defaultDisplay
+                    }
 
-                val result = FloatArray(16)
-                when (rotation) {
-                    Surface.ROTATION_90 -> {
-                        SensorManager.remapCoordinateSystem(
-                            rotationMatrix,
-                            AXIS_Y,
-                            AXIS_MINUS_X,
-                            result
-                        )
-                        it(result)
+                display?.let {
+                    val rotation = it.rotation
+                    val result = FloatArray(16)
+
+                    when (rotation) {
+                        Surface.ROTATION_90 -> {
+                            remapCoordinateSystem(
+                                rotationMatrix,
+                                AXIS_Y,
+                                AXIS_MINUS_X,
+                                result
+                            )
+                            it(result)
+                        }
+                        Surface.ROTATION_270 -> {
+                            remapCoordinateSystem(
+                                rotationMatrix,
+                                AXIS_MINUS_Y,
+                                AXIS_X,
+                                result
+                            )
+                            it(result)
+                        }
+                        else -> it(rotationMatrix)
                     }
-                    Surface.ROTATION_270 -> {
-                        SensorManager.remapCoordinateSystem(
-                            rotationMatrix,
-                            AXIS_MINUS_Y,
-                            AXIS_X,
-                            result
-                        )
-                        it(result)
-                    }
-                    else -> it(rotationMatrix)
                 }
             }
         }
