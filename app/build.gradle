@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "edu.tuk.satellitesarereal"
         minSdk 24
-        targetSdk 30
+        targetSdk 31
         versionCode 1
         versionName "1.0"
 
@@ -31,6 +31,11 @@ android {
         }
     }
     compileOptions {
+        // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+        // We want to support API level 24 (< 26) or higher.
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -49,6 +54,10 @@ android {
 
 dependencies {
     implementation project(':core')
+
+    // https://github.com/Kotlin/kotlinx-datetime#using-in-your-projects
+    // We want to support API level 24 (< 26) or higher.
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // Use reflection.
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
