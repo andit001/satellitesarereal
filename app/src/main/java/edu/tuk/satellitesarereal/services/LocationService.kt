@@ -1,6 +1,7 @@
 package edu.tuk.satellitesarereal.services
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.os.Looper
@@ -21,41 +22,56 @@ class LocationService @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 
-    private lateinit var locationCallback: LocationCallback
+    private var locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult?) {
+            locationResult ?: return
+            for (location in locationResult.locations) {
+                callFunc(location)
+            }
+        }
+    }
 
     private var callback: (Location?) -> Unit = {}
 
-    @SuppressLint("MissingPermission")
-    override fun registerLocationListener(callback: (Location?) -> Unit) {
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                locationResult ?: return
-                for (location in locationResult.locations) {
-                    callback(location)
-                }
-            }
-        }
+    private fun callFunc(location: Location) {
+        Log.d("SatAr: LocationService", "callFunc()")
+        callback(location)
+    }
 
+    @SuppressLint("MissingPermission")
+    fun startLocationUpdates() {
         val locationRequest = LocationRequest
             .create()
-            .setInterval(15000)
+            .setInterval(2000)
 
-//        Log.d("SatAr: LocationService", "getInterval()=${locationRequest.interval}")
+        Log.d("SatAr: LocationService", "getInterval()=${locationRequest.interval}")
 
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
-            Looper.getMainLooper(),
+            null,
         )
+    }
 
-//        if (!ret.isSuccessful) {
-//            Log.e(TAG, "location request failed")
-//        }
+    fun stopLocationUpdates() {
+        Log.d("SatAr: LocationService", "stopLocationUpdates()")
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
 
+    @SuppressLint("MissingPermission")
+    override fun registerLocationListener(callback: (Location?) -> Unit) {
         this.callback = callback
+
+        // Hand over the last location if available.
+        fusedLocationClient.lastLocation.addOnSuccessListener {
+            it?.let {
+                callFunc(it)
+            }
+        }
     }
 
     override fun unregister() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        callback = {}
+//        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }

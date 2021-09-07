@@ -17,8 +17,10 @@ import javax.inject.Inject
 @HiltViewModel
 class InfoScreenViewModel @Inject constructor(
     val satelliteDatabase: SatelliteDatabase,
-    val locationRepository: LocationRepository,
+//    val locationRepository: LocationRepository,
 ) : ViewModel() {
+
+    private lateinit var locationRepository: LocationRepository
 
     private var getSatellitesJob: Job = Job()
 
@@ -28,10 +30,14 @@ class InfoScreenViewModel @Inject constructor(
     private val _lastLocation: MutableLiveData<Location?> = MutableLiveData()
     val lastLocation: LiveData<Location?> = _lastLocation
 
+    fun setLocationRepository(locationRepository: LocationRepository) {
+        this.locationRepository = locationRepository
+    }
+
     fun onStart() {
         getSelectedSatellites()
         locationRepository.registerLocationListener {
-            _lastLocation.postValue(it)
+            _lastLocation.postValue(Location(it))
         }
     }
 

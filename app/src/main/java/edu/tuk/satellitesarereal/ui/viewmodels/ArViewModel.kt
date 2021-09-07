@@ -23,9 +23,11 @@ private const val TAG = "SatAr::ArViewModel"
 @HiltViewModel
 class ArViewModel @Inject constructor(
     val satelliteDatabase: SatelliteDatabase,
-    val locationRepository: LocationRepository,
+//    val locationRepository: LocationRepository,
     val orientationRepository: OrientationRepository,
 ) : ViewModel() {
+
+    private lateinit var locationRepository: LocationRepository
 
     private var getSatellitesJob: Job = Job()
 
@@ -48,12 +50,16 @@ class ArViewModel @Inject constructor(
     )
     val eciToPhoneTransformationM: LiveData<FloatArray?> = _eciToPhoneTransformationM
 
+    fun setLocationRepository(locationRepository: LocationRepository) {
+        this.locationRepository = locationRepository
+    }
+
     // Start/Stop called by DisposableEffect to make sure the listeners are unregistered as the
     // user navigates away from the ArScreen.
     fun onStart() {
         getSelectedSatellites()
         locationRepository.registerLocationListener {
-            _lastLocation.postValue(it)
+            _lastLocation.postValue(Location(it))
             calculateEciToPhoneTransformationM()
         }
         orientationRepository.registerListener {

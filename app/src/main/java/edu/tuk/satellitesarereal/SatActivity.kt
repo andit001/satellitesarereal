@@ -1,5 +1,7 @@
 package edu.tuk.satellitesarereal
 
+import android.content.Context
+import android.location.Location
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,13 +19,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.android.gms.location.LocationCallback
 import dagger.hilt.android.AndroidEntryPoint
+import edu.tuk.satellitesarereal.repositories.LocationRepository
+import edu.tuk.satellitesarereal.services.LocationService
 import edu.tuk.satellitesarereal.ui.screens.ArScreen
 import edu.tuk.satellitesarereal.ui.screens.InfoScreen
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
@@ -31,13 +38,34 @@ import edu.tuk.satellitesarereal.ui.viewmodels.ArViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.FilterScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.InfoScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
+import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class SatActivity : ComponentActivity() {
 
+    private lateinit var locationService: LocationService
+
+    override fun onResume() {
+        super.onResume()
+
+        // Start location service.
+        locationService.startLocationUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        // Stop location service.
+        locationService.stopLocationUpdates()
+    }
+
     @ExperimentalPermissionsApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        locationService = LocationService(applicationContext)
+
         setContent {
             SatellitesAreRealTheme {
                 val permissionsState = rememberMultiplePermissionsState(
@@ -48,7 +76,7 @@ class SatActivity : ComponentActivity() {
                 )
 
                 PermissionScreen(permissionsState) {
-                    SatArApp()
+                    SatArApp(locationService)
                 }
             }
         }
@@ -84,7 +112,7 @@ private fun PermissionScreen(
 }
 
 @Composable
-fun SatArApp() {
+fun SatArApp(locationRepository: LocationRepository) {
     var selectedItem by rememberSaveable { mutableStateOf(0) }
     val navController = rememberNavController()
 
@@ -167,11 +195,13 @@ fun SatArApp() {
             composable(route = "ArScreen") {
                 selectedItem = 1
                 val viewModel: ArViewModel = hiltViewModel()
+                viewModel.setLocationRepository(locationRepository)
                 ArScreen(viewModel)
             }
             composable(route = "InfoScreen") {
                 selectedItem = 2
                 val viewModel: InfoScreenViewModel = hiltViewModel()
+                viewModel.setLocationRepository(locationRepository)
                 InfoScreen(viewModel)
             }
             composable(route = "UpdateScreen") {
