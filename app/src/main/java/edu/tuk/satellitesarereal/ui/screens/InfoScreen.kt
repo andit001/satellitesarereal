@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rtbishop.look4sat.domain.predict4kotlin.StationPosition
+import edu.tuk.satellitesarereal.latDeg
+import edu.tuk.satellitesarereal.lonDeg
 import edu.tuk.satellitesarereal.ui.viewmodels.InfoScreenViewModel
 import java.util.*
 
@@ -83,8 +85,8 @@ fun InfoScreen(viewModel: InfoScreenViewModel) {
                                     )
 
                                     val satPos = satellite.getPosition(stationPosition, Date())
-                                    Text("Latitude=${satPos.latitude}")
-                                    Text("Longitude=${satPos.longitude}")
+                                    Text("Latitude=${satPos.latDeg()}")
+                                    Text("Longitude=${satPos.lonDeg()}")
                                     Text("Altitude=${satPos.altitude}")
                                 }
                             }

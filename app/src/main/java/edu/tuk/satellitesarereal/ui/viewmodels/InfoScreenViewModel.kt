@@ -17,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class InfoScreenViewModel @Inject constructor(
     val satelliteDatabase: SatelliteDatabase,
-//    val locationRepository: LocationRepository,
 ) : ViewModel() {
 
     private lateinit var locationRepository: LocationRepository
