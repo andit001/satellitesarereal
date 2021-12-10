@@ -11,7 +11,10 @@ import android.util.Log
 import android.view.Surface
 import android.view.WindowManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
 import edu.tuk.satellitesarereal.repositories.OrientationRepository
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,9 +23,10 @@ private const val TAG: String = "SatAr:OrientationService"
 @Singleton
 class OrientationService @Inject constructor(
     @ApplicationContext val context: Context,
-    private val sensorManager: SensorManager
+    private val sensorManager: SensorManager,
 ) : OrientationRepository, SensorEventListener {
 
+    private var samplingRate: Int = 33000
     private var listener: ((rotationMatrix: FloatArray) -> Unit)? = null
     private var accuracy: Int = SENSOR_STATUS_UNRELIABLE
     private val rotationMatrix = FloatArray(16)
@@ -38,7 +42,7 @@ class OrientationService @Inject constructor(
                 sensorManager.registerListener(
                     this,
                     it,
-                    33000,
+                    samplingRate,
                 )
             }
 

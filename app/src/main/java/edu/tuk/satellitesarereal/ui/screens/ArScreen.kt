@@ -2,6 +2,8 @@ package edu.tuk.satellitesarereal.ui.screens
 
 import android.annotation.SuppressLint
 import android.location.Location
+import android.util.Log
+import android.view.WindowManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -28,9 +30,17 @@ import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
 import com.rtbishop.look4sat.domain.predict4kotlin.StationPosition
 import edu.tuk.satellitesarereal.*
 import edu.tuk.satellitesarereal.ui.viewmodels.ArViewModel
+import kotlinx.coroutines.flow.collect
 import java.util.*
 import kotlin.math.abs
 
+/**
+ * Represents a satellite which can be drawn on screen.
+ *
+ * @param sat The satellite to be drawn.
+ * @param coordinates The homogenous coordinates of the satellite in homogenous form. The first two
+ * two elements represent the x and y position on screen in the range [-1, 1].
+ */
 data class DrawableSat(val sat: Satellite, var coordinates: FloatArray) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -53,20 +63,29 @@ data class DrawableSat(val sat: Satellite, var coordinates: FloatArray) {
 
 @Composable
 fun ArScreen(viewModel: ArViewModel) {
+    val context = LocalContext.current
+
     var satelliteToShow: DrawableSat? by remember {
         mutableStateOf(null)
     }
 
     DisposableEffect(key1 = viewModel) {
+        val window = context.findActivity()?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
         viewModel.onStart()
 
-        onDispose { viewModel.onStop() }
+        onDispose {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            viewModel.onStop()
+        }
     }
 
     val satellites by viewModel.selectedSatellites.observeAsState()
     val lastLocation by viewModel.lastLocation.observeAsState()
     val rotationMatrix by viewModel.rotationMatrix.observeAsState()
     val eciToPhoneTransformationM by viewModel.eciToPhoneTransformationM.observeAsState()
+    val fieldOfView by viewModel.fieldOfView.observeAsState()
 
     Box(
         Modifier.fillMaxSize()
@@ -78,11 +97,29 @@ fun ArScreen(viewModel: ArViewModel) {
             Modifier.matchParentSize(),
             lastLocation,
             satellites,
-            rotationMatrix,
             eciToPhoneTransformationM,
-            satelliteToShow
+            fieldOfView ?: 45.0f,
         ) {
             satelliteToShow = it
+        }
+
+        // Draw Gizmo (debug)
+        Canvas(
+            Modifier.matchParentSize()
+        ) {
+            rotationMatrix?.let {
+                drawGizmo(
+                    it,
+                    createPerspective(
+                        fieldOfView ?: 45.0f,
+                        size.width / size.height,
+                        100.0f,
+                        50000.0f
+                    ),
+                    size.width,
+                    size.height
+                )
+            }
         }
 
         Card {
@@ -105,10 +142,9 @@ fun ArScreen(viewModel: ArViewModel) {
                             Date()
                         )
 
-
                         val satPos = drawableSat.sat.getPosition(stationPosition, Date())
-                        Text("Latitude=%.2f".format(satPos.latitude))
-                        Text("Longitude=%.2f".format(satPos.longitude))
+                        Text("Latitude=%.2f".format(satPos.latDeg()))
+                        Text("Longitude=%.2f".format(satPos.lonDeg()))
                         Text("Altitude=%.2f km".format(satPos.altitude))
 
                         val distance = (satelliteVector - stationVector).magnitude()
@@ -121,16 +157,18 @@ fun ArScreen(viewModel: ArViewModel) {
 }
 
 private fun getSatellitesOnScreen(
-    canvasDimensions: Offset,
+    fieldOfView: Float,
+    aspectRatio: Float,
     lastLocation: Location,
     eciToPhoneTransformationM: FloatArray,
     satellites: List<Satellite>
 ): List<DrawableSat> {
-    val projectionMatrix = createProjectionMatrix(
-        canvasDimensions.x,
-        canvasDimensions.y,
-        canvasDimensions.x / 2.0f,
-        ((canvasDimensions.y / 2.0f) + 50000.0f)
+    // Create projection matrix.
+    val projectionMatrix = createPerspective(
+        fieldOfView,
+        aspectRatio,
+        100.0f,
+        50000.0f,
     )
 
     val stationPosition = StationPosition(
@@ -139,20 +177,33 @@ private fun getSatellitesOnScreen(
         lastLocation.altitude,
     )
 
-
-    // Model-View-Projection matrix (the real mvp).
+    // Model-View-Projection matrix.
     val mvpMatrix = multiplyMM(projectionMatrix, eciToPhoneTransformationM)
+//    val mvpMatrix = eciToPhoneTransformationM
 
     return satellites
         .asSequence()
         .map {
+            val satPosVector = it.getSatPosVector(stationPosition, Date())
+            val obsPosVector = it.getObsPosVector(stationPosition, Date())
+            val vector = satPosVector - obsPosVector
+            Log.d("SatAr:ArScreen", "satPosVector: ${satPosVector.asString()}")
+            Log.d("SatAr:ArScreen", "obsPosVector: ${obsPosVector.asString()}")
+            Log.d("SatAr:ArScreen", "vector: ${vector.asString()}")
             DrawableSat(
                 it,
-                it.getSatPosVector(stationPosition, Date()).asFloatArray()
+                vector.asFloatArray()
             )
         }
         .map {
             it.coordinates = multiplyMV(mvpMatrix, it.coordinates)
+
+            val vector = it.coordinates
+            var str = "GL: ${vector.asVector4().asString()}"
+            Log.d("SatAr:ArScreen", str)
+            str = "Hom. Coord.: ${vector.asVector4().asString()}"
+            Log.d("SatAr:ArScreen", str)
+
             it
         }
         .filter {
@@ -160,7 +211,8 @@ private fun getSatellitesOnScreen(
             // Clip satellites which can't be seen.
             abs(vector[3]) >= abs(vector[0]) &&
                     abs(vector[3]) >= abs(vector[1]) &&
-                    abs(vector[3]) >= abs(vector[2])
+                    vector[2] >= 0f
+//                    abs(vector[3]) >= abs(vector[2])
         }
         .toList()
 }
@@ -171,9 +223,8 @@ private fun RenderSatellites(
     modifier: Modifier,
     lastLocation: Location?,
     satellites: List<Satellite>?,
-    rotationMatrix: FloatArray?,
     eciToPhoneTransformationM: FloatArray?,
-    satelliteToShow: DrawableSat?,
+    fieldOfView: Float,
     onSatToShow: (sat: DrawableSat) -> Unit,
 ) {
     Box(
@@ -186,7 +237,8 @@ private fun RenderSatellites(
                 eciToPhoneTransformationM != null
             ) {
                 val satsToShow = getSatellitesOnScreen(
-                    Offset(size.width, size.height),
+                    fieldOfView,
+                    size.width / size.height,
                     lastLocation,
                     eciToPhoneTransformationM,
                     satellites
@@ -211,8 +263,6 @@ private fun RenderSatellites(
                 sat?.let { onSatToShow(it) }
 
                 drawCursor()
-
-//            drawGizmo(rotationMatrix, projectionMatrix, canvasWidth, canvasHeight)
             }
         }
     }

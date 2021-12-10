@@ -1,6 +1,7 @@
 package edu.tuk.satellitesarereal.ui.viewmodels
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,9 +11,11 @@ import com.rtbishop.look4sat.domain.predict4kotlin.StationPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.tuk.satellitesarereal.*
 import edu.tuk.satellitesarereal.model.SatelliteDatabase
+import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
 import edu.tuk.satellitesarereal.repositories.LocationRepository
 import edu.tuk.satellitesarereal.repositories.OrientationRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
@@ -23,8 +26,8 @@ private const val TAG = "SatAr::ArViewModel"
 @HiltViewModel
 class ArViewModel @Inject constructor(
     val satelliteDatabase: SatelliteDatabase,
-//    val locationRepository: LocationRepository,
     val orientationRepository: OrientationRepository,
+    val appSettingsRepository: AppSettingsRepository,
 ) : ViewModel() {
 
     private lateinit var locationRepository: LocationRepository
@@ -37,7 +40,19 @@ class ArViewModel @Inject constructor(
     private val _lastLocation: MutableLiveData<Location?> = MutableLiveData()
     val lastLocation: LiveData<Location?> = _lastLocation
 
-    private val _rotationMatrix: MutableLiveData<FloatArray?> = MutableLiveData()
+    private val _fieldOfView: MutableLiveData<Float> = MutableLiveData()
+    val fieldOfView: LiveData<Float> = _fieldOfView
+
+    private var getFieldOfViewJob: Job = Job()
+
+    private val _rotationMatrix: MutableLiveData<FloatArray?> = MutableLiveData(
+        floatArrayOf(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f,
+        )
+    )
     val rotationMatrix: LiveData<FloatArray?> = _rotationMatrix
 
     private val _eciToPhoneTransformationM: MutableLiveData<FloatArray?> = MutableLiveData(
@@ -58,6 +73,7 @@ class ArViewModel @Inject constructor(
     // user navigates away from the ArScreen.
     fun onStart() {
         getSelectedSatellites()
+        getFieldOfView()
         locationRepository.registerLocationListener {
             _lastLocation.postValue(Location(it))
             calculateEciToPhoneTransformationM()
@@ -71,6 +87,8 @@ class ArViewModel @Inject constructor(
     fun onStop() {
         locationRepository.unregister()
         orientationRepository.unregisterListener()
+        getSatellitesJob.cancel()
+        getFieldOfViewJob.cancel()
     }
 
     private fun getSelectedSatellites() {
@@ -91,6 +109,18 @@ class ArViewModel @Inject constructor(
                 }
         }
     }
+
+    private fun getFieldOfView() {
+        getFieldOfViewJob.cancel()
+        getFieldOfViewJob = viewModelScope.launch {
+            appSettingsRepository
+                .fieldOfView()
+                .collect {
+                    _fieldOfView.postValue(it)
+                }
+        }
+    }
+
 
     private fun onReceiveRotationMatrix(rotationMatrix: FloatArray) {
 //        Log.d("SatAr:ArViewModel", "Received $rotationMatrix")
@@ -160,9 +190,9 @@ class ArViewModel @Inject constructor(
                         val translation = multiplyMV(
                             transformAxesMatrix,
                             floatArrayOf(
-                                -satellite.getObsPosVector(stationPosition, Date()).x.toFloat(),
-                                -satellite.getObsPosVector(stationPosition, Date()).y.toFloat(),
-                                -satellite.getObsPosVector(stationPosition, Date()).z.toFloat(),
+                                satellite.getObsPosVector(stationPosition, Date()).x.toFloat(),
+                                satellite.getObsPosVector(stationPosition, Date()).y.toFloat(),
+                                satellite.getObsPosVector(stationPosition, Date()).z.toFloat(),
                                 1.0f,
                             ),
                         )
@@ -187,9 +217,9 @@ class ArViewModel @Inject constructor(
                             it[6] = obsZVector[1]
                             it[10] = obsZVector[2]
 
-                            it[12] = translation[0]
-                            it[13] = translation[1]
-                            it[14] = translation[2]
+//                            it[12] = -translation[0]
+//                            it[13] = -translation[1]
+//                            it[14] = -translation[2]
 
                             it[15] = 1.0f
                         }
@@ -200,11 +230,13 @@ class ArViewModel @Inject constructor(
                             transformAxesMatrix,
                         )
 
-                        // Lastly, calculate the rotation of the phone in.
-                        eciToPhoneTransformMatrix = multiplyMM(
-                            rotationMatrix.value!!,
-                            eciToPhoneTransformMatrix,
-                        )
+                        rotationMatrix.value?.let {
+                            // Lastly, calculate the rotation of the phone in.
+                            eciToPhoneTransformMatrix = multiplyMM(
+                                it,
+                                eciToPhoneTransformMatrix,
+                            )
+                        }
 
                         _eciToPhoneTransformationM.postValue(eciToPhoneTransformMatrix)
                     }

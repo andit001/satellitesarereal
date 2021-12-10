@@ -8,9 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,22 +27,29 @@ import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationCallback
 import dagger.hilt.android.AndroidEntryPoint
+import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
 import edu.tuk.satellitesarereal.repositories.LocationRepository
+import edu.tuk.satellitesarereal.services.DataStoreAppSettingsService
 import edu.tuk.satellitesarereal.services.LocationService
 import edu.tuk.satellitesarereal.ui.screens.ArScreen
 import edu.tuk.satellitesarereal.ui.screens.InfoScreen
+import edu.tuk.satellitesarereal.ui.screens.OptionsScreen
+import edu.tuk.satellitesarereal.ui.screens.OptionsScreenViewModel
 import edu.tuk.satellitesarereal.ui.theme.SatellitesAreRealTheme
 import edu.tuk.satellitesarereal.ui.viewmodels.ArViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.FilterScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.InfoScreenViewModel
 import edu.tuk.satellitesarereal.ui.viewmodels.UpdateScreenViewModel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class SatActivity : ComponentActivity() {
 
-    private lateinit var locationService: LocationService
+    lateinit var locationService: LocationService
 
     override fun onResume() {
         super.onResume()
@@ -65,6 +70,17 @@ class SatActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         locationService = LocationService(applicationContext)
+        appSettingsRepository = DataStoreAppSettingsService(applicationContext)
+
+        var interval = 2000L
+
+        runBlocking {
+            appSettingsRepository?.locationServiceInterval()?.take(1)?.collect {
+                interval = it
+            }
+        }
+
+        locationService.setUpdateInterval(interval)
 
         setContent {
             SatellitesAreRealTheme {
@@ -125,7 +141,7 @@ fun SatArApp(locationRepository: LocationRepository) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(Icons.Filled.Star, contentDescription = null)
+                            Icon(Icons.Filled.Search, contentDescription = null)
                             Text("Filter")
                         }
                     },
@@ -179,6 +195,21 @@ fun SatArApp(locationRepository: LocationRepository) {
                         navController.navigate("UpdateScreen")
                     },
                 )
+                BottomNavigationItem(
+                    icon = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(Icons.Filled.Settings, contentDescription = null)
+                            Text("Options")
+                        }
+                    },
+                    selected = selectedItem == 4,
+                    onClick = {
+                        navController.navigate("OptionsScreen")
+                    },
+                )
             }
         }
     ) {
@@ -208,6 +239,11 @@ fun SatArApp(locationRepository: LocationRepository) {
                 selectedItem = 3
                 val viewModel: UpdateScreenViewModel = hiltViewModel()
                 UpdateScreen(viewModel)
+            }
+            composable(route = "OptionsScreen") {
+                selectedItem = 4
+                val viewModel: OptionsScreenViewModel = hiltViewModel()
+                OptionsScreen(viewModel)
             }
         }
     }
