@@ -1,14 +1,19 @@
 package edu.tuk.satellitesarereal
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.opengl.Matrix
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import com.rtbishop.look4sat.domain.predict4kotlin.SatPos
 import com.rtbishop.look4sat.domain.predict4kotlin.Satellite
 import com.rtbishop.look4sat.domain.predict4kotlin.StationPosition
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.sqrt
+import kotlin.math.tan
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
@@ -39,6 +44,15 @@ fun Satellite.getObsPosVector(pos: StationPosition, time: Date): Satellite.Vecto
     return position.apply { w = 1.0 }
 }
 
+
+/**
+ * Returns the satelites position in ECI koordinates as kilometers.
+ *
+ * @param pos The position of the station (the observer).
+ * @param time Point in time to get the satellites position.
+ *
+ * @return Satellite.Vector4 containing the coordinates in ECI coordinates.
+ */
 fun Satellite.getSatPosVector(pos: StationPosition, time: Date): Satellite.Vector4 {
     // Make sure getPosition was called first, so that the private field is set.
     getPosition(pos, time)
@@ -74,7 +88,34 @@ operator fun Satellite.Vector4.minus(rhs: Satellite.Vector4): Satellite.Vector4 
     }
 }
 
+fun Satellite.Vector4?.asString(): String {
+    if (this == null) {
+        return "null"
+    }
+
+    return "x=${this.x} y=${this.y} z=${this.z} w=${this.w} mag=${this.magnitude()}"
+}
+
+fun SatPos.latDeg(): Double {
+    return Math.toDegrees(latitude)
+}
+
+fun SatPos.lonDeg(): Double {
+    var ret = Math.toDegrees(longitude)
+
+    while (ret < -180) {
+        ret += 360
+    }
+
+    while (ret > 180) {
+        ret -= 360
+    }
+
+    return ret
+}
+
 fun FloatArray.asVector4(): Satellite.Vector4 {
+    assert(this.size == 4)
     return Satellite.Vector4().apply {
         x = get(0).toDouble()
         y = get(1).toDouble()
@@ -93,6 +134,7 @@ fun FloatArray.normalize(): FloatArray {
 }
 
 fun multiplyMM(lhs: FloatArray, rhs: FloatArray): FloatArray {
+    assert(lhs.size == 16 && rhs.size == 16)
     val scratch = FloatArray(16)
     Matrix.multiplyMM(
         scratch,
@@ -107,6 +149,7 @@ fun multiplyMM(lhs: FloatArray, rhs: FloatArray): FloatArray {
 }
 
 fun multiplyMV(lhs: FloatArray, rhs: FloatArray): FloatArray {
+    assert(lhs.size == 16 && rhs.size == 4)
     val scratch = FloatArray(4)
     Matrix.multiplyMV(
         scratch,
@@ -121,10 +164,12 @@ fun multiplyMV(lhs: FloatArray, rhs: FloatArray): FloatArray {
 }
 
 fun dotProduct(lhs: FloatArray, rhs: FloatArray): Float {
+    assert(lhs.size == 4 && rhs.size == 4)
     return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2]
 }
 
 fun crossProduct(lhs: FloatArray, rhs: FloatArray): FloatArray {
+    assert(lhs.size == 4 && rhs.size == 4)
     return floatArrayOf(
         lhs[1] * rhs[2] - lhs[2] * rhs[1],
         lhs[2] * rhs[0] - lhs[0] * rhs[2],
@@ -157,11 +202,34 @@ fun createProjectionMatrix(w: Float, h: Float, n: Float, f: Float): FloatArray {
     )
 }
 
+/**
+ * Creates a projection matrix considering the given perspective.
+ *
+ * @param FoVx the field of view in degrees. Can't be 180° and should be smaller than 270°.
+ * @param aspectRatio the aspect ration of the render surface (width/height)
+ * @param near distance of the near plane to the camera
+ * @param far distance of the far plane to the camera
+ * @return a FloatArray(16) representing the projection matrix
+ */
+fun createPerspective(FoVx: Float, aspectRatio: Float, near: Float, far: Float): FloatArray {
+    // Make sure we do not have wrong values.
+    assert(FoVx < 270.0f && FoVx != 180.0f)
+
+    val fov = Math.toRadians(FoVx.toDouble()).toFloat()
+
+    // Divide by 2 so that we can use an angle of 90 degrees for the FoV.
+    val width = 2.0f * tan(fov / 2.0f) * near
+    val height = width * (1.0f / aspectRatio)
+
+    return createProjectionMatrix(width, height, near, far)
+}
+
 // Helper to apply the transformations to vectors.
 fun rotateVector(
     rotationMatrix: FloatArray,
     vector: FloatArray
 ): FloatArray {
+    assert(rotationMatrix.size == 16 && vector.size == 4)
     val newVector = FloatArray(4)
     Matrix.multiplyMV(
         newVector,
@@ -210,7 +278,7 @@ fun DrawScope.drawGizmo(
     canvasWidth: Float,
     canvasHeight: Float
 ) {
-    val arrowDistance = 2.0f
+    val arrowDistance = 4.0f
 
     // X-Arrow (east)
     var arrowStart = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
@@ -324,8 +392,28 @@ fun calculateOffset(
     vec[0] /= vec[3]
     vec[1] /= vec[3]
 
+    if (vec[0].isNaN()) {
+        vec[0] = 0.0f
+    }
+    if (vec[1].isNaN()) {
+        vec[1] = 0.0f
+    }
+
     return Offset(
         centerX + vec[0] * centerX,
         centerY - vec[1] * centerY
     )
+}
+
+fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) {
+            return context
+        }
+
+        context = context.baseContext
+    }
+
+    return null
 }
