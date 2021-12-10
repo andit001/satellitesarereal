@@ -46,6 +46,9 @@ fun FilterScreen(viewModel: FilterScreenViewModel) {
             }
         )
 
+        val numberOfSelectedSatellites = tleEntries?.filter { it.isSelected }?.count()
+        Text("#Selected: $numberOfSelectedSatellites")
+
         Spacer(Modifier.height(8.dp))
 
         Row {
