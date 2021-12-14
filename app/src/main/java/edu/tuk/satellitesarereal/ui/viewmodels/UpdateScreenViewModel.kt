@@ -95,10 +95,10 @@ class UpdateScreenViewModel @Inject constructor(
         }
     }
 
-    fun onDownloadFiles(it: List<String>) {
-        it
-            .filter { it != "datastore" }
-            .forEach { downloadFile(it) }
+    fun onDownloadFiles() {
+       _urls.value
+            ?.filter { it != "datastore" }
+            ?.forEach { downloadFile(it) }
     }
 
     private fun downloadFile(file: String) {

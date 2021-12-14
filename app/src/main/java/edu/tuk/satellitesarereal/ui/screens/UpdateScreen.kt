@@ -36,7 +36,7 @@ fun UpdateScreen(viewModel: UpdateScreenViewModel) {
         Spacer(Modifier.height(5.dp))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { urls?.let { viewModel.onDownloadFiles(it) } }
+            onClick = { viewModel.onDownloadFiles() }
         ) {
             Text(stringResource(R.string.download_files_button))
         }
