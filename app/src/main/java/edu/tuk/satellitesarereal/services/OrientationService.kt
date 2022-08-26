@@ -10,7 +10,10 @@ import android.hardware.SensorManager.*
 import android.util.Log
 import android.view.Surface
 import android.view.WindowManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import edu.tuk.satellitesarereal.SatActivity
 import edu.tuk.satellitesarereal.repositories.AppSettingsRepository
 import edu.tuk.satellitesarereal.repositories.OrientationRepository
 import kotlinx.coroutines.flow.collect
@@ -72,11 +75,16 @@ class OrientationService @Inject constructor(
                 // level is lower and use context.display otherwise.
                 val display =
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                        context.display
+                        // TODO: find a better solution.
+                        //context.display
+//                        activity.display
+                        @Suppress("DEPRECATION")
+                        (context.getSystemService(WINDOW_SERVICE) as WindowManager)
+                            .defaultDisplay
                     } else {
-                            @Suppress("DEPRECATION")
-                            (context.getSystemService(WINDOW_SERVICE) as WindowManager)
-                                .defaultDisplay
+                        @Suppress("DEPRECATION")
+                        (context.getSystemService(WINDOW_SERVICE) as WindowManager)
+                            .defaultDisplay
                     }
 
                 display?.let {
